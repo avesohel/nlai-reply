@@ -1,8 +1,42 @@
-# Deployment Guide
+# Quick Deployment Guide (Free Tier)
 
-This guide covers deploying the YouTube Reply Service to various platforms.
+This guide covers deploying the NLAI Reply Platform using free/low-cost services for demo purposes.
 
-## 📋 Pre-deployment Checklist
+## 🚀 Quick Deploy (Railway + Vercel + MongoDB Atlas)
+
+**Total Cost: ~$5-10/month for Railway (includes $5 monthly credit)**
+
+### Step 1: Setup MongoDB Atlas (FREE)
+1. Go to [MongoDB Atlas](https://www.mongodb.com/atlas)
+2. Create free cluster (512MB)
+3. Create database user with read/write permissions
+4. Whitelist all IPs (0.0.0.0/0) for demo
+5. Get connection string: `mongodb+srv://username:password@cluster.mongodb.net/database`
+
+### Step 2: Deploy Backend to Railway
+1. Go to [Railway](https://railway.app) and sign up
+2. Click "Start a New Project" → "Deploy from GitHub repo"
+3. Connect your GitHub and select this repository
+4. Add environment variables (see .env.example)
+5. Deploy automatically happens - get your backend URL
+
+### Step 3: Deploy Frontend to Vercel
+1. Go to [Vercel](https://vercel.com) and sign up
+2. Import your GitHub repository
+3. Framework: Create React App
+4. Build Command: `cd client && npm run build`
+5. Output Directory: `client/build`
+6. Add environment variable: `REACT_APP_API_URL=https://your-railway-url.up.railway.app/api`
+
+### Step 4: Configure Cross-Origin Settings
+Update Railway backend environment:
+- `CLIENT_URL=https://your-vercel-app.vercel.app`
+
+✅ **Your app is now live!**
+
+---
+
+## 📋 Detailed Setup Instructions
 
 ### Required Services
 

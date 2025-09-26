@@ -19,6 +19,11 @@ const { startCronJobs } = require('./services/cronService');
 
 const app = express();
 
+// Trust proxy for Railway, Heroku, etc.
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
 // Security middleware
 app.use(helmet());
 app.use(compression());
@@ -76,6 +81,11 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime()
   });
+});
+
+// Favicon route to prevent 404
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).end();
 });
 
 // Serve static files in production
