@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Brain, Settings, Zap, MessageSquare, FlaskConical, BarChart3 } from 'lucide-react';
+import { Brain, Settings, Zap, MessageCircle, FlaskConical, BarChart3 } from 'lucide-react';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
 
@@ -95,24 +95,10 @@ const AISettings = () => {
     }
   };
 
-  const triggerCommentMonitoring = async () => {
-    setTestLoading(true);
-
-    try {
-      const response = await api.post('/ai/monitor-comments');
-      toast.success(`Comment monitoring completed! Processed: ${response.data.processed}, Replies: ${response.data.replies}`);
-    } catch (error) {
-      console.error('Error triggering comment monitoring:', error);
-      toast.error('Failed to trigger comment monitoring');
-    } finally {
-      setTestLoading(false);
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
       </div>
     );
   }
@@ -123,11 +109,11 @@ const AISettings = () => {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center space-x-3">
-            <Brain className="h-8 w-8 text-blue-600" />
+            <Brain className="h-8 w-8 text-primary-600" />
             <h1 className="text-3xl font-bold text-gray-900">AI Reply Settings</h1>
           </div>
           <p className="text-gray-600 mt-2">
-            Configure AI-powered natural reply generation for your Youtube comments
+            Configure AI-powered natural reply generation for your YouTube comments
           </p>
         </div>
 
@@ -138,7 +124,7 @@ const AISettings = () => {
               {/* Basic Settings */}
               <div className="card">
                 <div className="flex items-center space-x-2 mb-6">
-                  <Settings className="h-5 w-5 text-blue-600" />
+                  <Settings className="h-5 w-5 text-primary-600" />
                   <h2 className="text-xl font-semibold text-gray-900">Basic Settings</h2>
                 </div>
 
@@ -148,7 +134,7 @@ const AISettings = () => {
                       <input
                         type="checkbox"
                         {...register('isEnabled')}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                       />
                       <span className="text-sm font-medium text-gray-700">Enable AI Replies</span>
                     </label>
@@ -195,7 +181,7 @@ const AISettings = () => {
               {/* Personality Settings */}
               <div className="card">
                 <div className="flex items-center space-x-2 mb-6">
-                  <MessageSquare className="h-5 w-5 text-blue-600" />
+                  <MessageCircle className="h-5 w-5 text-primary-600" />
                   <h2 className="text-xl font-semibold text-gray-900">Personality Traits</h2>
                 </div>
 
@@ -246,128 +232,6 @@ const AISettings = () => {
                 </div>
               </div>
 
-              {/* Automatic Replies */}
-              <div className="card">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Automatic Replies</h2>
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                  <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0">
-                      <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                        <span className="text-white text-xs font-bold">!</span>
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-blue-800 mb-1">Automatic Reply System</h3>
-                      <p className="text-sm text-blue-700">
-                        When enabled, the system will automatically monitor your videos for new comments and generate AI replies every 15 minutes.
-                        Only comments from the last 24 hours on videos from the last 7 days will be processed.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        {...register('automaticReplies.enabled')}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                      />
-                      <span className="text-sm font-medium text-gray-700">Enable Automatic Replies</span>
-                    </label>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Automatically generate and post replies to new comments
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Delay Between Replies (seconds)
-                    </label>
-                    <select {...register('automaticReplies.delayBetweenReplies')} className="input">
-                      <option value="30000">30 seconds</option>
-                      <option value="60000">1 minute</option>
-                      <option value="120000">2 minutes</option>
-                      <option value="300000">5 minutes</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Max Replies Per Video
-                    </label>
-                    <select {...register('automaticReplies.maxRepliesPerVideo')} className="input">
-                      <option value="5">5 replies</option>
-                      <option value="10">10 replies</option>
-                      <option value="20">20 replies</option>
-                      <option value="50">50 replies</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        {...register('automaticReplies.onlyReplyToQuestions')}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                      />
-                      <span className="text-sm font-medium text-gray-700">Only Reply to Questions</span>
-                    </label>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Only generate replies for comments that contain questions
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        {...register('automaticReplies.monitorNewVideos')}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                      />
-                      <span className="text-sm font-medium text-gray-700">Monitor New Videos Only</span>
-                    </label>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Only monitor videos published in the last 7 days
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        {...register('automaticReplies.skipIfAlreadyReplied')}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                      />
-                      <span className="text-sm font-medium text-gray-700">Skip If Already Replied</span>
-                    </label>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Don't reply to comments that already have responses
-                    </p>
-                  </div>
-
-                  <div className="col-span-2">
-                    <button
-                      type="button"
-                      onClick={triggerCommentMonitoring}
-                      disabled={testLoading}
-                      className="btn btn-secondary flex items-center space-x-2"
-                    >
-                      {testLoading ? (
-                        <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full"></div>
-                      ) : (
-                        <FlaskConical className="h-4 w-4" />
-                      )}
-                      <span>Test Comment Monitoring Now</span>
-                    </button>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Manually trigger comment monitoring to test the automatic reply system
-                    </p>
-                  </div>
-                </div>
-              </div>
-
               {/* Reply Filters */}
               <div className="card">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Reply Filters</h2>
@@ -408,7 +272,7 @@ const AISettings = () => {
                     <input
                       type="checkbox"
                       {...register('replyFilters.excludeSpam')}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                     />
                     <label className="text-sm font-medium text-gray-700">Exclude Spam Comments</label>
                   </div>
@@ -417,7 +281,7 @@ const AISettings = () => {
                     <input
                       type="checkbox"
                       {...register('replyFilters.requiresQuestion')}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                     />
                     <label className="text-sm font-medium text-gray-700">Only Reply to Questions</label>
                   </div>
@@ -443,7 +307,7 @@ const AISettings = () => {
             {/* Test Reply */}
             <div className="card">
               <div className="flex items-center space-x-2 mb-4">
-                <FlaskConical className="h-5 w-5 text-blue-600" />
+                <FlaskConical className="h-5 w-5 text-primary-600" />
                 <h3 className="text-lg font-semibold text-gray-900">Test AI Reply</h3>
               </div>
 
@@ -483,7 +347,7 @@ const AISettings = () => {
             {analytics?.ai && (
               <div className="card">
                 <div className="flex items-center space-x-2 mb-4">
-                  <BarChart3 className="h-5 w-5 text-blue-600" />
+                  <BarChart3 className="h-5 w-5 text-primary-600" />
                   <h3 className="text-lg font-semibold text-gray-900">AI Usage Stats</h3>
                 </div>
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { YouTube, MessageSquare, BarChart3, Plus, ExternalLink } from 'lucide-react';
+import { Youtube, MessageSquare, BarChart3, Plus, ExternalLink, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
@@ -43,12 +43,27 @@ const Dashboard = () => {
     }
   };
 
-  const connectYouTube = async () => {
+  const connectYoutube = async () => {
     try {
       const response = await api.get('/youtube/auth-url');
       window.location.href = response.data.authUrl;
     } catch (error) {
-      toast.error('Failed to connect YouTube');
+      toast.error('Failed to connect Youtube');
+    }
+  };
+
+  const deleteChannel = async (channelId) => {
+    if (!window.confirm('Are you sure you want to disconnect this YouTube channel?')) {
+      return;
+    }
+
+    try {
+      await api.delete(`/youtube/channels/${channelId}`);
+      toast.success('YouTube channel disconnected successfully');
+      // Refresh the data
+      fetchDashboardData();
+    } catch (error) {
+      toast.error('Failed to disconnect YouTube channel');
     }
   };
 
@@ -64,7 +79,7 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
@@ -82,8 +97,8 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="card">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-primary-100">
-                <MessageSquare className="h-6 w-6 text-primary-600" />
+              <div className="p-3 rounded-full bg-blue-100">
+                <MessageSquare className="h-6 w-6 text-blue-600" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Total Replies</p>
@@ -94,7 +109,7 @@ const Dashboard = () => {
 
           <div className="card">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-success-100">
+              <div className="p-3 rounded-full bg-green-100">
                 <BarChart3 className="h-6 w-6 text-success-600" />
               </div>
               <div className="ml-4">
@@ -106,8 +121,8 @@ const Dashboard = () => {
 
           <div className="card">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-warning-100">
-                <YouTube className="h-6 w-6 text-warning-600" />
+              <div className="p-3 rounded-full bg-yellow-100">
+                <Youtube className="h-6 w-6 text-yellow-600" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Connected Channels</p>
@@ -118,12 +133,12 @@ const Dashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* YouTube Channels */}
+          {/* Youtube Channels */}
           <div className="card">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">YouTube Channels</h2>
+              <h2 className="text-xl font-semibold text-gray-900">Youtube Channels</h2>
               <button
-                onClick={connectYouTube}
+                onClick={connectYoutube}
                 className="btn btn-primary flex items-center space-x-2"
               >
                 <Plus className="h-4 w-4" />
@@ -133,11 +148,11 @@ const Dashboard = () => {
 
             {channels.length === 0 ? (
               <div className="text-center py-8">
-                <YouTube className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <Youtube className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No channels connected</h3>
-                <p className="text-gray-500 mb-4">Connect your YouTube channel to start automating replies</p>
+                <p className="text-gray-500 mb-4">Connect your Youtube channel to start automating replies</p>
                 <button
-                  onClick={connectYouTube}
+                  onClick={connectYoutube}
                   className="btn btn-primary"
                 >
                   Connect Your First Channel
@@ -146,10 +161,10 @@ const Dashboard = () => {
             ) : (
               <div className="space-y-4">
                 {channels.map((channel, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div key={channel.channelId || index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center space-x-3">
                       <div className="p-2 bg-red-100 rounded-full">
-                        <YouTube className="h-5 w-5 text-red-600" />
+                        <Youtube className="h-5 w-5 text-red-600" />
                       </div>
                       <div>
                         <h3 className="font-medium text-gray-900">{channel.channelName}</h3>
@@ -158,9 +173,18 @@ const Dashboard = () => {
                         </p>
                       </div>
                     </div>
-                    <span className={`badge ${channel.connected ? 'badge-success' : 'badge-danger'}`}>
-                      {channel.connected ? 'Connected' : 'Disconnected'}
-                    </span>
+                    <div className="flex items-center space-x-3">
+                      <span className={`badge ${channel.connected ? 'badge-success' : 'badge-danger'}`}>
+                        {channel.connected ? 'Connected' : 'Disconnected'}
+                      </span>
+                      <button
+                        onClick={() => deleteChannel(channel.channelId)}
+                        className="p-2 text-red-600 hover:bg-red-100 rounded-full transition-colors"
+                        title="Disconnect channel"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -171,7 +195,7 @@ const Dashboard = () => {
           <div className="card">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-900">Recent Replies</h2>
-              <Link to="/analytics" className="text-primary-600 hover:text-primary-700 flex items-center space-x-1">
+              <Link to="/analytics" className="text-blue-600 hover:text-blue-700 flex items-center space-x-1">
                 <span>View all</span>
                 <ExternalLink className="h-4 w-4" />
               </Link>
@@ -217,27 +241,27 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Link
               to="/templates"
-              className="p-6 bg-white rounded-lg border border-gray-200 hover:border-primary-300 transition-colors"
+              className="p-6 bg-white rounded-lg border border-gray-200 hover:border-blue-300 transition-colors"
             >
-              <MessageSquare className="h-8 w-8 text-primary-600 mb-3" />
+              <MessageSquare className="h-8 w-8 text-blue-600 mb-3" />
               <h3 className="font-medium text-gray-900 mb-2">Create Reply Template</h3>
               <p className="text-sm text-gray-600">Set up automated responses for common comments</p>
             </Link>
 
             <Link
               to="/analytics"
-              className="p-6 bg-white rounded-lg border border-gray-200 hover:border-primary-300 transition-colors"
+              className="p-6 bg-white rounded-lg border border-gray-200 hover:border-blue-300 transition-colors"
             >
-              <BarChart3 className="h-8 w-8 text-primary-600 mb-3" />
+              <BarChart3 className="h-8 w-8 text-blue-600 mb-3" />
               <h3 className="font-medium text-gray-900 mb-2">View Analytics</h3>
               <p className="text-sm text-gray-600">Track your reply performance and engagement</p>
             </Link>
 
             <Link
               to="/subscription"
-              className="p-6 bg-white rounded-lg border border-gray-200 hover:border-primary-300 transition-colors"
+              className="p-6 bg-white rounded-lg border border-gray-200 hover:border-blue-300 transition-colors"
             >
-              <YouTube className="h-8 w-8 text-primary-600 mb-3" />
+              <Youtube className="h-8 w-8 text-blue-600 mb-3" />
               <h3 className="font-medium text-gray-900 mb-2">Manage Subscription</h3>
               <p className="text-sm text-gray-600">Upgrade or modify your current plan</p>
             </Link>

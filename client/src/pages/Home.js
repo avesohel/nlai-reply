@@ -1,38 +1,38 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { YouTube, MessageSquare, BarChart3, Shield, Zap, Users } from 'lucide-react';
+import { Youtube, MessageSquare, BarChart3, Shield, Zap, Users } from 'lucide-react';
 
 const Home = () => {
   const features = [
     {
-      icon: <MessageSquare className="h-8 w-8 text-primary-600" />,
+      icon: <MessageSquare className="h-8 w-8 text-blue-600" />,
       title: 'Smart Reply Templates',
       description: 'Create custom reply templates with variables and conditions for automated responses.'
     },
     {
-      icon: <BarChart3 className="h-8 w-8 text-primary-600" />,
+      icon: <BarChart3 className="h-8 w-8 text-blue-600" />,
       title: 'Analytics Dashboard',
       description: 'Track your reply performance with detailed analytics and insights.'
     },
     {
-      icon: <Shield className="h-8 w-8 text-primary-600" />,
+      icon: <Shield className="h-8 w-8 text-blue-600" />,
       title: 'Secure & Reliable',
-      description: 'Enterprise-grade security with reliable YouTube API integration.'
+      description: 'Enterprise-grade security with reliable Youtube API integration.'
     },
     {
-      icon: <Zap className="h-8 w-8 text-primary-600" />,
+      icon: <Zap className="h-8 w-8 text-blue-600" />,
       title: 'Lightning Fast',
       description: 'Respond to comments in seconds with our automated reply system.'
     },
     {
-      icon: <Users className="h-8 w-8 text-primary-600" />,
+      icon: <Users className="h-8 w-8 text-blue-600" />,
       title: 'Multiple Channels',
-      description: 'Manage multiple YouTube channels from a single dashboard.'
+      description: 'Manage multiple Youtube channels from a single dashboard.'
     },
     {
-      icon: <YouTube className="h-8 w-8 text-primary-600" />,
-      title: 'YouTube Integration',
-      description: 'Direct integration with YouTube API for seamless comment management.'
+      icon: <Youtube className="h-8 w-8 text-blue-600" />,
+      title: 'Youtube Integration',
+      description: 'Direct integration with Youtube API for seamless comment management.'
     }
   ];
 
@@ -40,36 +40,36 @@ const Home = () => {
     {
       name: 'Basic',
       price: '$9.99',
-      features: ['100 replies/month', '1 YouTube channel', 'Basic templates', 'Email support']
+      features: ['100 replies/month', '1 Youtube channel', 'Basic templates', 'Email support']
     },
     {
       name: 'Pro',
       price: '$29.99',
-      features: ['500 replies/month', '5 YouTube channels', 'Advanced templates', 'Priority support', 'Analytics']
+      features: ['500 replies/month', '5 Youtube channels', 'Advanced templates', 'Priority support', 'Analytics']
     },
     {
       name: 'Enterprise',
       price: '$99.99',
-      features: ['2000 replies/month', '25 YouTube channels', 'Custom templates', 'Premium support', 'Advanced analytics']
+      features: ['2000 replies/month', '25 Youtube channels', 'Custom templates', 'Premium support', 'Advanced analytics']
     }
   ];
 
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20">
+      <section className="bg-gradient-to-br from-blue-600 to-blue-800 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Automate Your YouTube Comment Replies
+            Automate Your Youtube Comment Replies
           </h1>
           <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
             Save time and engage with your audience efficiently using AI-powered reply templates and smart automation.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/register" className="btn bg-white text-primary-600 hover:bg-gray-100 px-8 py-3 text-lg">
+            <Link to="/register" className="btn bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 text-lg">
               Start Free Trial
             </Link>
-            <Link to="/login" className="btn btn-outline border-white text-white hover:bg-white hover:text-primary-600 px-8 py-3 text-lg">
+            <Link to="/login" className="btn btn-outline border-white text-white hover:bg-white hover:text-blue-600 px-8 py-3 text-lg">
               Sign In
             </Link>
           </div>
@@ -84,7 +84,7 @@ const Home = () => {
               Powerful Features for Content Creators
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Everything you need to manage your YouTube comments efficiently and grow your community.
+              Everything you need to manage your Youtube comments efficiently and grow your community.
             </p>
           </div>
 
@@ -116,14 +116,14 @@ const Home = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {plans.map((plan, index) => (
-              <div key={index} className={`card text-center ${index === 1 ? 'ring-2 ring-primary-600 relative' : ''}`}>
+              <div key={index} className={`card text-center ${index === 1 ? 'ring-2 ring-blue-600 relative' : ''}`}>
                 {index === 1 && (
-                  <span className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-primary-600 text-white px-4 py-1 rounded-full text-sm font-medium">
+                  <span className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-medium">
                     Most Popular
                   </span>
                 )}
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-                <div className="text-4xl font-bold text-primary-600 mb-6">
+                <div className="text-4xl font-bold text-blue-600 mb-6">
                   {plan.price}
                   <span className="text-lg text-gray-500 font-normal">/month</span>
                 </div>
@@ -145,15 +145,15 @@ const Home = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-primary-600 text-white">
+      <section className="py-20 bg-blue-600 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Ready to Transform Your YouTube Management?
+            Ready to Transform Your Youtube Management?
           </h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto">
             Join thousands of content creators who are saving time and growing their communities with our platform.
           </p>
-          <Link to="/register" className="btn bg-white text-primary-600 hover:bg-gray-100 px-8 py-3 text-lg">
+          <Link to="/register" className="btn bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 text-lg">
             Get Started Today
           </Link>
         </div>

@@ -40,6 +40,11 @@ const adminAuth = async (req, res, next) => {
 };
 
 const subscriptionRequired = (req, res, next) => {
+  // Admin users bypass subscription requirements
+  if (req.user.role === 'admin') {
+    return next();
+  }
+
   if (!req.user.subscription || !req.user.subscription.isActive()) {
     return res.status(403).json({
       message: 'Active subscription required',

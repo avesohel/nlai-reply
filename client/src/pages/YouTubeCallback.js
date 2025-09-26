@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
 
-const YouTubeCallback = () => {
+const YoutubeCallback = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -13,7 +13,7 @@ const YouTubeCallback = () => {
       const error = searchParams.get('error');
 
       if (error) {
-        toast.error('YouTube connection failed');
+        toast.error('Youtube connection failed');
         navigate('/dashboard');
         return;
       }
@@ -21,10 +21,10 @@ const YouTubeCallback = () => {
       if (code) {
         try {
           await api.post('/youtube/connect', { code });
-          toast.success('YouTube channel connected successfully!');
+          toast.success('Youtube channel connected successfully!');
           navigate('/dashboard');
         } catch (error) {
-          toast.error('Failed to connect YouTube channel');
+          toast.error('Failed to connect Youtube channel');
           navigate('/dashboard');
         }
       } else {
@@ -38,11 +38,11 @@ const YouTubeCallback = () => {
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-        <p className="text-gray-600">Connecting your YouTube channel...</p>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p className="text-gray-600">Connecting your Youtube channel...</p>
       </div>
     </div>
   );
 };
 
-export default YouTubeCallback;
+export default YoutubeCallback;

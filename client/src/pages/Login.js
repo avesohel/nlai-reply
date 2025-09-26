@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { Eye, EyeOff, YouTube } from 'lucide-react';
+import { Eye, EyeOff, Youtube } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -37,14 +37,14 @@ const Login = () => {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="flex justify-center">
-            <YouTube className="h-12 w-12 text-red-600" />
+            <Youtube className="h-12 w-12 text-red-600" />
           </div>
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
             Sign in to your account
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             Or{' '}
-            <Link to="/register" className="font-medium text-primary-600 hover:text-primary-500">
+            <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500">
               create a new account
             </Link>
           </p>
@@ -107,7 +107,7 @@ const Login = () => {
           <div className="flex items-center justify-between">
             <Link
               to="/forgot-password"
-              className="text-sm text-primary-600 hover:text-primary-500"
+              className="text-sm text-blue-600 hover:text-blue-500"
             >
               Forgot your password?
             </Link>

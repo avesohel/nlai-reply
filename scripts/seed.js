@@ -19,8 +19,8 @@ const seedData = async () => {
     await Subscription.deleteMany({});
     await ReplyTemplate.deleteMany({});
 
-    const adminPassword = await bcrypt.hash('admin123', 12);
-    const userPassword = await bcrypt.hash('user123', 12);
+    const adminPassword = 'admin123';
+    const userPassword = 'user123';
 
     const adminUser = await User.create({
       name: 'Ali Sohel',
@@ -32,8 +32,8 @@ const seedData = async () => {
       usage: {
         currentPeriodStart: new Date(),
         currentPeriodReplies: 0,
-        repliesSent: 0
-      }
+        repliesSent: 0,
+      },
     });
 
     const testUser = await User.create({
@@ -43,17 +43,19 @@ const seedData = async () => {
       role: 'user',
       emailVerified: true,
       isActive: true,
-      youtubeChannels: [{
-        channelId: 'UC_test_channel_id',
-        channelName: 'Test Channel',
-        connected: true,
-        lastSync: new Date()
-      }],
+      youtubeChannels: [
+        {
+          channelId: 'UC_test_channel_id',
+          channelName: 'Test Channel',
+          connected: true,
+          lastSync: new Date(),
+        },
+      ],
       usage: {
         currentPeriodStart: new Date(),
         currentPeriodReplies: 25,
-        repliesSent: 156
-      }
+        repliesSent: 156,
+      },
     });
 
     const proSubscription = await Subscription.create({
@@ -67,13 +69,13 @@ const seedData = async () => {
         channels: 5,
         prioritySupport: true,
         analytics: true,
-        customTemplates: true
+        customTemplates: true,
       },
       pricing: {
         amount: 29.99,
         currency: 'usd',
-        interval: 'month'
-      }
+        interval: 'month',
+      },
     });
 
     testUser.subscription = proSubscription._id;
@@ -87,44 +89,42 @@ const seedData = async () => {
         triggers: ['thanks', 'thank you', 'appreciate'],
         conditions: {
           sentiment: 'positive',
-          keywords: ['great', 'awesome', 'love']
+          keywords: ['great', 'awesome', 'love'],
         },
         isActive: true,
         usageCount: 45,
-        variables: [
-          { name: 'username', defaultValue: 'there', required: false }
-        ]
+        variables: [{ name: 'username', defaultValue: 'there', required: false }],
       },
       {
         user: testUser._id,
         name: 'Question Response',
-        content: 'Hi {{username}}! That\'s a great question. You can find more information about {{topic}} in the video description or check out my other videos on this topic.',
+        content:
+          "Hi {{username}}! That's a great question. You can find more information about {{topic}} in the video description or check out my other videos on this topic.",
         triggers: ['question', 'how', 'what', 'why'],
         conditions: {
           sentiment: 'neutral',
-          keywords: ['question', 'help', 'explain']
+          keywords: ['question', 'help', 'explain'],
         },
         isActive: true,
         usageCount: 23,
         variables: [
           { name: 'username', defaultValue: 'there', required: false },
-          { name: 'topic', defaultValue: 'this', required: false }
-        ]
+          { name: 'topic', defaultValue: 'this', required: false },
+        ],
       },
       {
         user: testUser._id,
         name: 'Subscribe Reminder',
-        content: 'Hey {{username}}! If you enjoyed this content, don\'t forget to subscribe and hit the bell icon for notifications! 🔔',
+        content:
+          "Hey {{username}}! If you enjoyed this content, don't forget to subscribe and hit the bell icon for notifications! 🔔",
         triggers: ['first time', 'new viewer', 'discovered'],
         conditions: {
-          sentiment: 'positive'
+          sentiment: 'positive',
         },
         isActive: true,
         usageCount: 67,
-        variables: [
-          { name: 'username', defaultValue: 'there', required: false }
-        ]
-      }
+        variables: [{ name: 'username', defaultValue: 'there', required: false }],
+      },
     ]);
 
     console.log('✅ Database seeded successfully!');
@@ -135,7 +135,6 @@ const seedData = async () => {
     console.log('\n🔐 Login credentials:');
     console.log('   Admin: avesohel@gmail.com / admin123');
     console.log('   User:  test@replybot.com / user123');
-
   } catch (error) {
     console.error('❌ Seeding failed:', error);
   } finally {

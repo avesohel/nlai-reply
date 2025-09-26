@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, YouTube, BarChart3, MessageSquare, CreditCard, User, LogOut, Brain } from 'lucide-react';
+import { Menu, X, Youtube, BarChart3, MessageSquare, CreditCard, User, LogOut, Brain } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 const Navbar = () => {
@@ -21,7 +21,7 @@ const Navbar = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to={user ? "/dashboard" : "/"} className="flex items-center space-x-2">
-              <YouTube className="h-8 w-8 text-red-600" />
+              <Youtube className="h-8 w-8 text-red-600" />
               <span className="text-xl font-bold text-gray-900">ReplyBot</span>
             </Link>
           </div>
@@ -34,7 +34,7 @@ const Navbar = () => {
                   to="/dashboard"
                   className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium ${
                     isActive('/dashboard')
-                      ? 'text-primary-600 bg-primary-50'
+                      ? 'text-blue-600 bg-blue-50'
                       : 'text-gray-700 hover:text-gray-900'
                   }`}
                 >
@@ -46,7 +46,7 @@ const Navbar = () => {
                   to="/templates"
                   className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium ${
                     isActive('/templates')
-                      ? 'text-primary-600 bg-primary-50'
+                      ? 'text-blue-600 bg-blue-50'
                       : 'text-gray-700 hover:text-gray-900'
                   }`}
                 >
@@ -58,7 +58,7 @@ const Navbar = () => {
                   to="/analytics"
                   className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium ${
                     isActive('/analytics')
-                      ? 'text-primary-600 bg-primary-50'
+                      ? 'text-blue-600 bg-blue-50'
                       : 'text-gray-700 hover:text-gray-900'
                   }`}
                 >
@@ -70,7 +70,7 @@ const Navbar = () => {
                   to="/ai-settings"
                   className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium ${
                     isActive('/ai-settings')
-                      ? 'text-primary-600 bg-primary-50'
+                      ? 'text-blue-600 bg-blue-50'
                       : 'text-gray-700 hover:text-gray-900'
                   }`}
                 >
@@ -82,7 +82,7 @@ const Navbar = () => {
                   to="/subscription"
                   className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium ${
                     isActive('/subscription')
-                      ? 'text-primary-600 bg-primary-50'
+                      ? 'text-blue-600 bg-blue-50'
                       : 'text-gray-700 hover:text-gray-900'
                   }`}
                 >
@@ -151,7 +151,7 @@ const Navbar = () => {
                 to="/dashboard"
                 className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium ${
                   isActive('/dashboard')
-                    ? 'text-primary-600 bg-primary-50'
+                    ? 'text-blue-600 bg-blue-50'
                     : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
                 }`}
                 onClick={() => setIsOpen(false)}
@@ -164,7 +164,7 @@ const Navbar = () => {
                 to="/templates"
                 className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium ${
                   isActive('/templates')
-                    ? 'text-primary-600 bg-primary-50'
+                    ? 'text-blue-600 bg-blue-50'
                     : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
                 }`}
                 onClick={() => setIsOpen(false)}
@@ -177,7 +177,7 @@ const Navbar = () => {
                 to="/analytics"
                 className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium ${
                   isActive('/analytics')
-                    ? 'text-primary-600 bg-primary-50'
+                    ? 'text-blue-600 bg-blue-50'
                     : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
                 }`}
                 onClick={() => setIsOpen(false)}
@@ -190,7 +190,7 @@ const Navbar = () => {
                 to="/ai-settings"
                 className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium ${
                   isActive('/ai-settings')
-                    ? 'text-primary-600 bg-primary-50'
+                    ? 'text-blue-600 bg-blue-50'
                     : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
                 }`}
                 onClick={() => setIsOpen(false)}
@@ -203,7 +203,7 @@ const Navbar = () => {
                 to="/subscription"
                 className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium ${
                   isActive('/subscription')
-                    ? 'text-primary-600 bg-primary-50'
+                    ? 'text-blue-600 bg-blue-50'
                     : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
                 }`}
                 onClick={() => setIsOpen(false)}
@@ -216,7 +216,7 @@ const Navbar = () => {
                 to="/profile"
                 className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium ${
                   isActive('/profile')
-                    ? 'text-primary-600 bg-primary-50'
+                    ? 'text-blue-600 bg-blue-50'
                     : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
                 }`}
                 onClick={() => setIsOpen(false)}

@@ -24,6 +24,24 @@ router.get('/auth-url', auth, (req, res) => {
   }
 });
 
+// OAuth callback route
+router.get('/callback', async (req, res) => {
+  try {
+    const { code, state } = req.query;
+
+    if (!code) {
+      return res.redirect(`${process.env.CLIENT_URL}/dashboard?error=oauth_cancelled`);
+    }
+
+    // Store the code in session or redirect to frontend with code
+    // For now, redirect to frontend with the code so it can complete the connection
+    res.redirect(`${process.env.CLIENT_URL}/youtube/callback?code=${encodeURIComponent(code)}`);
+  } catch (error) {
+    console.error('YouTube OAuth callback error:', error);
+    res.redirect(`${process.env.CLIENT_URL}/dashboard?error=oauth_failed`);
+  }
+});
+
 router.post('/connect', auth, async (req, res) => {
   try {
     const { code } = req.body;
@@ -40,6 +58,8 @@ router.post('/connect', auth, async (req, res) => {
       channel => channel.channelId === channelInfo.id
     );
 
+    console.log(`Channel connection attempt: ${channelInfo.id}, existing index: ${existingChannelIndex}`);
+
     const channelData = {
       channelId: channelInfo.id,
       channelName: channelInfo.snippet.title,
@@ -50,9 +70,13 @@ router.post('/connect', auth, async (req, res) => {
     };
 
     if (existingChannelIndex >= 0) {
+      // Update existing channel
       user.youtubeChannels[existingChannelIndex] = channelData;
+      console.log('Updated existing channel');
     } else {
+      // Add new channel
       user.youtubeChannels.push(channelData);
+      console.log('Added new channel');
     }
 
     await user.save();
@@ -68,6 +92,30 @@ router.post('/connect', auth, async (req, res) => {
   } catch (error) {
     console.error('YouTube connect error:', error);
     res.status(500).json({ message: 'Failed to connect YouTube channel' });
+  }
+});
+
+// Delete YouTube channel
+router.delete('/channels/:channelId', auth, async (req, res) => {
+  try {
+    const { channelId } = req.params;
+    const user = req.user;
+
+    const channelIndex = user.youtubeChannels.findIndex(
+      channel => channel.channelId === channelId
+    );
+
+    if (channelIndex === -1) {
+      return res.status(404).json({ message: 'Channel not found' });
+    }
+
+    user.youtubeChannels.splice(channelIndex, 1);
+    await user.save();
+
+    res.json({ message: 'YouTube channel disconnected successfully' });
+  } catch (error) {
+    console.error('YouTube disconnect error:', error);
+    res.status(500).json({ message: 'Failed to disconnect YouTube channel' });
   }
 });
 

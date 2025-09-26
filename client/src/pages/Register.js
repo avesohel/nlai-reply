@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { Eye, EyeOff, YouTube } from 'lucide-react';
+import { Eye, EyeOff, Youtube } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -45,14 +45,14 @@ const Register = () => {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="flex justify-center">
-            <YouTube className="h-12 w-12 text-red-600" />
+            <Youtube className="h-12 w-12 text-red-600" />
           </div>
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
             Create your account
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             Or{' '}
-            <Link to="/login" className="font-medium text-primary-600 hover:text-primary-500">
+            <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
               sign in to existing account
             </Link>
           </p>
@@ -162,15 +162,15 @@ const Register = () => {
                 required: 'You must accept the terms and conditions'
               })}
               type="checkbox"
-              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
             <label htmlFor="terms" className="ml-2 block text-sm text-gray-900">
               I agree to the{' '}
-              <a href="/terms" className="text-primary-600 hover:text-primary-500">
+              <a href="/terms" className="text-blue-600 hover:text-blue-500">
                 Terms and Conditions
               </a>{' '}
               and{' '}
-              <a href="/privacy" className="text-primary-600 hover:text-primary-500">
+              <a href="/privacy" className="text-blue-600 hover:text-blue-500">
                 Privacy Policy
               </a>
             </label>

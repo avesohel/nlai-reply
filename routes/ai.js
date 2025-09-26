@@ -2,6 +2,7 @@ const express = require('express');
 const { auth, subscriptionRequired } = require('../middleware/auth');
 const { validateRequest } = require('../middleware/validation');
 const Joi = require('joi');
+const commentMonitorService = require('../services/commentMonitorService');
 
 const aiReplyService = require('../services/aiReplyService');
 const { extractTranscript, getTranscriptsByUser, searchTranscripts, getTranscriptStats } = require('../services/transcriptService');
@@ -401,6 +402,28 @@ router.post('/test-reply', auth, async (req, res) => {
     });
   } catch (error) {
     console.error('Test AI reply error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Manually trigger comment monitoring for current user
+router.post('/monitor-comments', auth, subscriptionRequired, async (req, res) => {
+  try {
+    const user = req.user;
+
+    console.log(`Manual comment monitoring triggered by user: ${user.email}`);
+
+    // Run comment monitoring for this specific user
+    const result = await commentMonitorService.monitorUserComments(user);
+
+    res.json({
+      success: true,
+      message: 'Comment monitoring completed',
+      processed: result.processed,
+      replies: result.replies
+    });
+  } catch (error) {
+    console.error('Manual comment monitoring error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });

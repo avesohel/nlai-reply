@@ -3,11 +3,21 @@ const User = require('../models/User');
 const Subscription = require('../models/Subscription');
 const ReplyLog = require('../models/ReplyLog');
 const { sendEmail } = require('./emailService');
+const commentMonitorService = require('./commentMonitorService');
 
 const jobs = [];
 
 const startCronJobs = () => {
   console.log('Starting cron jobs...');
+
+  // Comment monitoring job - runs every 15 minutes
+  const commentMonitorJob = new cron.CronJob(
+    '*/15 * * * *',
+    () => commentMonitorService.monitorAllUsers(),
+    null,
+    true,
+    'UTC'
+  );
 
   const usageWarningJob = new cron.CronJob(
     '0 9 * * *',
@@ -41,7 +51,7 @@ const startCronJobs = () => {
     'UTC'
   );
 
-  jobs.push(usageWarningJob, subscriptionRenewalJob, cleanupJob, analyticsJob);
+  jobs.push(commentMonitorJob, usageWarningJob, subscriptionRenewalJob, cleanupJob, analyticsJob);
 
   console.log(`✅ Started ${jobs.length} cron jobs`);
 };
@@ -225,5 +235,6 @@ module.exports = {
   checkUsageLimits,
   checkSubscriptionRenewals,
   cleanupOldLogs,
-  generateMonthlyReports
+  generateMonthlyReports,
+  monitorComments: () => commentMonitorService.monitorAllUsers()
 };

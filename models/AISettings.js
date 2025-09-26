@@ -62,6 +62,15 @@ const aiSettingsSchema = new mongoose.Schema({
   },
   maxTokens: { type: Number, min: 50, max: 300, default: 150 },
   temperature: { type: Number, min: 0, max: 2, default: 0.7 },
+  automaticReplies: {
+    enabled: { type: Boolean, default: false },
+    monitorNewVideos: { type: Boolean, default: true },
+    monitorAllVideos: { type: Boolean, default: false },
+    delayBetweenReplies: { type: Number, min: 10000, max: 300000, default: 30000 }, // milliseconds
+    maxRepliesPerVideo: { type: Number, min: 1, max: 50, default: 10 },
+    onlyReplyToQuestions: { type: Boolean, default: false },
+    skipIfAlreadyReplied: { type: Boolean, default: true }
+  },
   usage: {
     totalRepliesGenerated: { type: Number, default: 0 },
     currentMonthUsage: { type: Number, default: 0 },

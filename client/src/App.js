@@ -16,7 +16,7 @@ import Templates from './pages/Templates';
 import Analytics from './pages/Analytics';
 import Profile from './pages/Profile';
 import AISettings from './pages/AISettings';
-import YouTubeCallback from './pages/YouTubeCallback';
+import YoutubeCallback from './pages/YouTubeCallback';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,7 +33,7 @@ function ProtectedRoute({ children }) {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
@@ -47,7 +47,7 @@ function PublicRoute({ children }) {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
@@ -107,9 +107,9 @@ function AppContent() {
               <AISettings />
             </ProtectedRoute>
           } />
-          <Route path="/auth/youtube/callback" element={
+          <Route path="/youtube/callback" element={
             <ProtectedRoute>
-              <YouTubeCallback />
+              <YoutubeCallback />
             </ProtectedRoute>
           } />
 

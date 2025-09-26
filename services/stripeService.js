@@ -3,16 +3,16 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const priceIds = {
   basic: {
     monthly: process.env.STRIPE_BASIC_MONTHLY_PRICE_ID,
-    yearly: process.env.STRIPE_BASIC_YEARLY_PRICE_ID
+    yearly: process.env.STRIPE_BASIC_YEARLY_PRICE_ID,
   },
   pro: {
     monthly: process.env.STRIPE_PRO_MONTHLY_PRICE_ID,
-    yearly: process.env.STRIPE_PRO_YEARLY_PRICE_ID
+    yearly: process.env.STRIPE_PRO_YEARLY_PRICE_ID,
   },
   enterprise: {
     monthly: process.env.STRIPE_ENTERPRISE_MONTHLY_PRICE_ID,
-    yearly: process.env.STRIPE_ENTERPRISE_YEARLY_PRICE_ID
-  }
+    yearly: process.env.STRIPE_ENTERPRISE_YEARLY_PRICE_ID,
+  },
 };
 
 const createStripeCustomer = async (email, name) => {
@@ -20,8 +20,8 @@ const createStripeCustomer = async (email, name) => {
     email,
     name,
     metadata: {
-      source: 'youtube-reply-service'
-    }
+      source: 'nlai-reply',
+    },
   });
 
   return customer;
@@ -43,30 +43,30 @@ const createSubscription = async (customerId, plan, interval = 'month') => {
     trial_period_days: 7,
     metadata: {
       plan,
-      interval
-    }
+      interval,
+    },
   });
 
   return subscription;
 };
 
-const cancelSubscription = async (subscriptionId) => {
+const cancelSubscription = async subscriptionId => {
   const subscription = await stripe.subscriptions.update(subscriptionId, {
-    cancel_at_period_end: true
+    cancel_at_period_end: true,
   });
 
   return subscription;
 };
 
-const reactivateSubscription = async (subscriptionId) => {
+const reactivateSubscription = async subscriptionId => {
   const subscription = await stripe.subscriptions.update(subscriptionId, {
-    cancel_at_period_end: false
+    cancel_at_period_end: false,
   });
 
   return subscription;
 };
 
-const getSubscriptionStatus = async (subscriptionId) => {
+const getSubscriptionStatus = async subscriptionId => {
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
   return subscription;
 };
@@ -75,11 +75,13 @@ const updateSubscription = async (subscriptionId, newPriceId) => {
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
 
   const updatedSubscription = await stripe.subscriptions.update(subscriptionId, {
-    items: [{
-      id: subscription.items.data[0].id,
-      price: newPriceId,
-    }],
-    proration_behavior: 'create_prorations'
+    items: [
+      {
+        id: subscription.items.data[0].id,
+        price: newPriceId,
+      },
+    ],
+    proration_behavior: 'create_prorations',
   });
 
   return updatedSubscription;
@@ -102,7 +104,7 @@ const createPaymentMethod = async (customerId, paymentMethodId) => {
 const getCustomerInvoices = async (customerId, limit = 10) => {
   const invoices = await stripe.invoices.list({
     customer: customerId,
-    limit: limit
+    limit: limit,
   });
 
   return invoices.data.map(invoice => ({
@@ -114,7 +116,7 @@ const getCustomerInvoices = async (customerId, limit = 10) => {
     periodStart: new Date(invoice.period_start * 1000),
     periodEnd: new Date(invoice.period_end * 1000),
     hostedInvoiceUrl: invoice.hosted_invoice_url,
-    invoicePdf: invoice.invoice_pdf
+    invoicePdf: invoice.invoice_pdf,
   }));
 };
 
@@ -131,7 +133,7 @@ const createCheckoutSession = async (customerId, priceId, successUrl, cancelUrl)
     mode: 'subscription',
     success_url: successUrl,
     cancel_url: cancelUrl,
-    trial_period_days: 7
+    trial_period_days: 7,
   });
 
   return session;
@@ -146,21 +148,19 @@ const createPortalSession = async (customerId, returnUrl) => {
   return session;
 };
 
-const handleFailedPayment = async (subscriptionId) => {
+const handleFailedPayment = async subscriptionId => {
   try {
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
     const latestInvoice = await stripe.invoices.retrieve(subscription.latest_invoice);
 
     if (latestInvoice.payment_intent) {
-      const paymentIntent = await stripe.paymentIntents.retrieve(
-        latestInvoice.payment_intent
-      );
+      const paymentIntent = await stripe.paymentIntents.retrieve(latestInvoice.payment_intent);
 
       if (paymentIntent.status === 'requires_payment_method') {
         await stripe.subscriptions.update(subscriptionId, {
           pause_collection: {
-            behavior: 'mark_uncollectible'
-          }
+            behavior: 'mark_uncollectible',
+          },
         });
       }
     }
@@ -172,21 +172,21 @@ const handleFailedPayment = async (subscriptionId) => {
   }
 };
 
-const getUsageStats = async (customerId) => {
+const getUsageStats = async customerId => {
   const subscriptions = await stripe.subscriptions.list({
     customer: customerId,
-    status: 'all'
+    status: 'all',
   });
 
   const invoices = await stripe.invoices.list({
     customer: customerId,
-    limit: 12
+    limit: 12,
   });
 
   return {
     subscriptions: subscriptions.data,
     invoices: invoices.data,
-    totalSpent: invoices.data.reduce((sum, invoice) => sum + invoice.amount_paid, 0) / 100
+    totalSpent: invoices.data.reduce((sum, invoice) => sum + invoice.amount_paid, 0) / 100,
   };
 };
 
@@ -213,5 +213,5 @@ module.exports = {
   handleFailedPayment,
   getUsageStats,
   validateWebhook,
-  priceIds
+  priceIds,
 };

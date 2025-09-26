@@ -6,7 +6,7 @@ const Analytics = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center">
-          <BarChart3 className="h-16 w-16 text-primary-600 mx-auto mb-4" />
+          <BarChart3 className="h-16 w-16 text-blue-600 mx-auto mb-4" />
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Analytics</h1>
           <p className="text-gray-600">Track your reply performance and engagement metrics</p>
           <div className="mt-8">

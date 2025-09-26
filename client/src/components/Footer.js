@@ -1,5 +1,5 @@
 import React from 'react';
-import { YouTube } from 'lucide-react';
+import { Youtube } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -8,11 +8,11 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-              <YouTube className="h-8 w-8 text-red-600" />
+              <Youtube className="h-8 w-8 text-red-600" />
               <span className="text-xl font-bold">ReplyBot</span>
             </div>
             <p className="text-gray-400 mb-4">
-              Automate your YouTube comment replies and engage with your audience more efficiently.
+              Automate your Youtube comment replies and engage with your audience more efficiently.
             </p>
             <p className="text-sm text-gray-500">
               © 2024 ReplyBot. All rights reserved.

@@ -25,7 +25,7 @@ Add these to your `.env` file:
 
 ```env
 # Required for basic functionality
-MONGODB_URI=mongodb://localhost:27017/youtube-reply-service
+MONGODB_URI=mongodb://localhost:27017/nlai-reply
 JWT_SECRET=your-super-secret-jwt-key-min-32-characters
 YOUTUBE_API_KEY=AIzaSyC...your-youtube-api-key
 
