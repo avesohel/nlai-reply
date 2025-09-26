@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(chmod +x setup.sh)",
+      "Bash(chmod +x scripts/test-setup.js)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

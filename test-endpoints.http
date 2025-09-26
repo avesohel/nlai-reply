@@ -1,0 +1,144 @@
+# YouTube Reply Service API Testing
+# Use with VS Code REST Client extension
+
+@baseUrl = http://localhost:5000/api
+@authToken = your-jwt-token-here
+
+### Health Check
+GET {{baseUrl}}/health
+
+### Register User
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Test User",
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Login User
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Get Current User
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{authToken}}
+
+### Get Subscription Plans
+GET {{baseUrl}}/subscriptions/plans
+
+### Get AI Settings
+GET {{baseUrl}}/ai/settings
+Authorization: Bearer {{authToken}}
+
+### Update AI Settings
+PUT {{baseUrl}}/ai/settings
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "isEnabled": true,
+  "replyTone": "friendly",
+  "replyLength": "medium",
+  "personalityTraits": {
+    "enthusiasmLevel": 8,
+    "formalityLevel": 5,
+    "humorLevel": 6,
+    "helpfulnessLevel": 9
+  },
+  "customInstructions": "Be helpful and engaging with viewers"
+}
+
+### Generate AI Reply (Test)
+POST {{baseUrl}}/ai/generate-reply
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "comment": {
+    "id": "test-comment-123",
+    "text": "Great tutorial! How did you learn to code so well?",
+    "author": "Coding Newbie",
+    "likeCount": 5
+  },
+  "videoId": "test-video-123",
+  "channelId": "test-channel-123",
+  "options": {
+    "forceRegenerate": false,
+    "saveToLog": true
+  }
+}
+
+### Test AI Reply
+POST {{baseUrl}}/ai/test-reply
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "comment": {
+    "text": "This is amazing! Can you make a tutorial on advanced topics?",
+    "author": "Test User"
+  }
+}
+
+### Extract Video Transcript
+POST {{baseUrl}}/ai/transcripts/extract
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "videoId": "dQw4w9WgXcQ",
+  "channelId": "test-channel"
+}
+
+### Get AI Analytics
+GET {{baseUrl}}/ai/analytics
+Authorization: Bearer {{authToken}}
+
+### Get YouTube Auth URL
+GET {{baseUrl}}/youtube/auth-url
+Authorization: Bearer {{authToken}}
+
+### Get Connected Channels
+GET {{baseUrl}}/youtube/channels
+Authorization: Bearer {{authToken}}
+
+### Get Reply Templates
+GET {{baseUrl}}/youtube/templates
+Authorization: Bearer {{authToken}}
+
+### Create Reply Template
+POST {{baseUrl}}/youtube/templates
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Welcome Template",
+  "content": "Welcome to my channel {{username}}! Thanks for watching! 🎉",
+  "triggers": ["welcome", "new viewer", "first time"],
+  "conditions": {
+    "sentiment": "positive"
+  },
+  "isActive": true,
+  "variables": [
+    {
+      "name": "username",
+      "defaultValue": "there",
+      "required": false
+    }
+  ]
+}
+
+### Get User Profile
+GET {{baseUrl}}/users/profile
+Authorization: Bearer {{authToken}}
+
+### Get User Usage
+GET {{baseUrl}}/users/usage
+Authorization: Bearer {{authToken}}
