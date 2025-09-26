@@ -7,7 +7,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}🚀 YouTube Reply Service Setup${NC}"
+echo -e "${BLUE}🚀 NL AI Reply Service Setup${NC}"
 echo "=================================="
 
 # Check if Node.js is installed

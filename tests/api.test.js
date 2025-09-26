@@ -8,7 +8,9 @@ describe('API Endpoints', () => {
   beforeAll(async () => {
     // Connect to test database
     if (mongoose.connection.readyState === 0) {
-      await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/youtube-reply-test');
+      await mongoose.connect(
+        process.env.MONGODB_URI || 'mongodb://localhost:27017/nlai-reply-test'
+      );
     }
   });
 
@@ -18,9 +20,7 @@ describe('API Endpoints', () => {
 
   describe('Health Check', () => {
     test('GET /api/health should return 200', async () => {
-      const response = await request(app)
-        .get('/api/health')
-        .expect(200);
+      const response = await request(app).get('/api/health').expect(200);
 
       expect(response.body.status).toBe('OK');
       expect(response.body.timestamp).toBeDefined();
@@ -32,13 +32,10 @@ describe('API Endpoints', () => {
       const userData = {
         name: 'Test User',
         email: 'test@example.com',
-        password: 'password123'
+        password: 'password123',
       };
 
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send(userData)
-        .expect(201);
+      const response = await request(app).post('/api/auth/register').send(userData).expect(201);
 
       expect(response.body.token).toBeDefined();
       expect(response.body.user.email).toBe(userData.email);
@@ -48,13 +45,10 @@ describe('API Endpoints', () => {
     test('POST /api/auth/login should authenticate user', async () => {
       const loginData = {
         email: 'test@example.com',
-        password: 'password123'
+        password: 'password123',
       };
 
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send(loginData)
-        .expect(200);
+      const response = await request(app).post('/api/auth/login').send(loginData).expect(200);
 
       expect(response.body.token).toBeDefined();
       expect(response.body.user.email).toBe(loginData.email);
@@ -85,7 +79,7 @@ describe('API Endpoints', () => {
       const settings = {
         isEnabled: true,
         replyTone: 'professional',
-        replyLength: 'short'
+        replyLength: 'short',
       };
 
       const response = await request(app)
@@ -100,9 +94,7 @@ describe('API Endpoints', () => {
 
   describe('Subscription Plans', () => {
     test('GET /api/subscriptions/plans should return available plans', async () => {
-      const response = await request(app)
-        .get('/api/subscriptions/plans')
-        .expect(200);
+      const response = await request(app).get('/api/subscriptions/plans').expect(200);
 
       expect(response.body.plans).toBeDefined();
       expect(response.body.plans.basic).toBeDefined();

@@ -5,6 +5,7 @@ This guide covers deploying the YouTube Reply Service to various platforms.
 ## 📋 Pre-deployment Checklist
 
 ### Required Services
+
 - [ ] MongoDB database (MongoDB Atlas recommended)
 - [ ] Redis instance (for caching and sessions)
 - [ ] SMTP email service (SendGrid, AWS SES, or Gmail)
@@ -13,6 +14,7 @@ This guide covers deploying the YouTube Reply Service to various platforms.
 - [ ] Domain name and SSL certificate
 
 ### Environment Configuration
+
 - [ ] All environment variables configured
 - [ ] Database connection strings updated
 - [ ] API keys and secrets secured
@@ -24,6 +26,7 @@ This guide covers deploying the YouTube Reply Service to various platforms.
 ### Option 1: Digital Ocean Droplet
 
 #### 1. Create Droplet
+
 ```bash
 # Create Ubuntu 22.04 droplet with at least 2GB RAM
 # Connect via SSH
@@ -31,6 +34,7 @@ ssh root@your-droplet-ip
 ```
 
 #### 2. Install Dependencies
+
 ```bash
 # Update system
 apt update && apt upgrade -y
@@ -56,10 +60,11 @@ npm install -g pm2
 ```
 
 #### 3. Deploy Application
+
 ```bash
 # Clone repository
-git clone <your-repo-url> /var/www/youtube-reply-service
-cd /var/www/youtube-reply-service
+git clone <your-repo-url> /var/www/nlai-reply
+cd /var/www/nlai-reply
 
 # Install dependencies
 npm install
@@ -82,8 +87,9 @@ pm2 startup
 ```
 
 #### 4. Configure Nginx
+
 ```nginx
-# /etc/nginx/sites-available/youtube-reply-service
+# /etc/nginx/sites-available/nlai-reply
 server {
     listen 80;
     server_name yourdomain.com www.yourdomain.com;
@@ -103,9 +109,10 @@ server {
 ```
 
 #### 5. Enable Site and SSL
+
 ```bash
 # Enable site
-ln -s /etc/nginx/sites-available/youtube-reply-service /etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/nlai-replytc/nginx/sites-enabled/
 nginx -t
 systemctl reload nginx
 
@@ -117,24 +124,29 @@ certbot --nginx -d yourdomain.com -d www.yourdomain.com
 ### Option 2: AWS EC2 with RDS
 
 #### 1. Launch EC2 Instance
+
 - AMI: Ubuntu 22.04 LTS
 - Instance Type: t3.medium (2 vCPU, 4GB RAM)
 - Security Group: Allow HTTP (80), HTTPS (443), SSH (22)
 
 #### 2. Set up RDS
+
 - Engine: MongoDB (DocumentDB)
 - Instance class: db.t3.medium
 - Storage: 20GB SSD
 
 #### 3. Deploy Application
+
 Follow similar steps as Digital Ocean, but use DocumentDB connection string:
+
 ```env
-MONGODB_URI=mongodb://username:password@your-documentdb-cluster.cluster-xxx.us-east-1.docdb.amazonaws.com:27017/youtube-reply-service?ssl=true&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false
+MONGODB_URI=mongodb://username:password@your-documentdb-cluster.cluster-xxx.us-east-1.docdb.amazonaws.com:27017/nlai-replyl=true&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false
 ```
 
 ### Option 3: Docker Deployment
 
 #### 1. Production Docker Compose
+
 ```yaml
 # docker-compose.prod.yml
 version: '3.8'
@@ -143,7 +155,7 @@ services:
   app:
     build: .
     ports:
-      - "5000:5000"
+      - '5000:5000'
     environment:
       - NODE_ENV=production
     env_file:
@@ -171,8 +183,8 @@ services:
   nginx:
     image: nginx:alpine
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ./nginx.prod.conf:/etc/nginx/nginx.conf
       - ./ssl:/etc/nginx/ssl
@@ -186,6 +198,7 @@ volumes:
 ```
 
 #### 2. Deploy with Docker
+
 ```bash
 # Build and start
 docker-compose -f docker-compose.prod.yml up -d
@@ -201,6 +214,7 @@ docker-compose -f docker-compose.prod.yml up -d --build
 ### Option 4: Heroku Deployment
 
 #### 1. Prepare for Heroku
+
 ```bash
 # Install Heroku CLI
 npm install -g heroku
@@ -219,6 +233,7 @@ heroku addons:create heroku-redis:hobby-dev
 ```
 
 #### 2. Configure Environment Variables
+
 ```bash
 heroku config:set NODE_ENV=production
 heroku config:set JWT_SECRET=your-jwt-secret
@@ -228,6 +243,7 @@ heroku config:set STRIPE_SECRET_KEY=your-stripe-secret
 ```
 
 #### 3. Deploy
+
 ```bash
 # Add Procfile
 echo "web: npm start" > Procfile
@@ -244,11 +260,12 @@ heroku open
 ## 🔧 Production Configuration
 
 ### PM2 Ecosystem File
+
 ```javascript
 // ecosystem.config.js
 module.exports = {
   apps: [{
-    name: 'youtube-reply-service',
+    name: 'nlai-reply
     script: 'server.js',
     instances: 2,
     exec_mode: 'cluster',
@@ -268,6 +285,7 @@ module.exports = {
 ```
 
 ### Nginx Production Configuration
+
 ```nginx
 # nginx.prod.conf
 events {
@@ -308,6 +326,7 @@ http {
 ## 📊 Monitoring and Logging
 
 ### Application Monitoring
+
 ```bash
 # Install monitoring tools
 npm install -g @pm2/io
@@ -319,13 +338,14 @@ pm2 set pm2-logrotate:retain 30
 ```
 
 ### Log Management
+
 ```bash
 # Create log directories
-mkdir -p /var/log/youtube-reply-service
+mkdir -p /var/log/nlai-reply
 
 # Configure log rotation
-cat > /etc/logrotate.d/youtube-reply-service << EOF
-/var/log/youtube-reply-service/*.log {
+cat > /etc/logrotate.d/nlai-reply EOF
+/var/log/nlai-replylog {
     daily
     missingok
     rotate 52
@@ -341,6 +361,7 @@ EOF
 ```
 
 ### Health Checks
+
 ```bash
 # Add health check endpoint monitoring
 curl -f http://localhost:5000/api/health || exit 1
@@ -354,6 +375,7 @@ curl -f http://localhost:5000/api/health || exit 1
 ## 🔐 Security Hardening
 
 ### Server Security
+
 ```bash
 # Configure firewall
 ufw enable
@@ -374,6 +396,7 @@ dpkg-reconfigure -plow unattended-upgrades
 ```
 
 ### Application Security
+
 ```bash
 # Set secure headers in Nginx
 add_header X-Frame-Options DENY;
@@ -385,6 +408,7 @@ add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" alway
 ## 🔄 Backup and Recovery
 
 ### Database Backup
+
 ```bash
 # Create backup script
 cat > /home/backups/mongodb-backup.sh << EOF
@@ -409,29 +433,33 @@ crontab -e
 ```
 
 ### Application Backup
+
 ```bash
 # Backup application files
-rsync -avz /var/www/youtube-reply-service/ /home/backups/app/
+rsync -avz /var/www/nlai-replyhome/backups/app/
 
 # Backup environment files
-cp /var/www/youtube-reply-service/.env.production /home/backups/env/
+cp /var/www/nlai-replynv.production /home/backups/env/
 ```
 
 ## 📈 Scaling Considerations
 
 ### Horizontal Scaling
+
 - Use load balancer (AWS ALB, Nginx)
 - Deploy multiple application instances
 - Implement session store with Redis
 - Use CDN for static assets
 
 ### Database Scaling
+
 - MongoDB replica sets
 - Read replicas for analytics
 - Database sharding for large datasets
 - Connection pooling optimization
 
 ### Performance Optimization
+
 - Enable gzip compression
 - Implement caching strategy
 - Optimize database queries
@@ -443,6 +471,7 @@ cp /var/www/youtube-reply-service/.env.production /home/backups/env/
 ### Common Issues
 
 #### Application Won't Start
+
 ```bash
 # Check logs
 pm2 logs
@@ -456,6 +485,7 @@ netstat -tulpn | grep :5000
 ```
 
 #### Database Connection Issues
+
 ```bash
 # Test MongoDB connection
 mongo --host localhost --port 27017
@@ -468,6 +498,7 @@ node -e "console.log(process.env.MONGODB_URI)"
 ```
 
 #### SSL Certificate Issues
+
 ```bash
 # Check certificate status
 certbot certificates
@@ -482,12 +513,14 @@ openssl s_client -connect yourdomain.com:443
 ### Recovery Procedures
 
 #### Database Recovery
+
 ```bash
 # Restore from backup
 mongorestore --host localhost --port 27017 /path/to/backup
 ```
 
 #### Application Recovery
+
 ```bash
 # Rollback to previous version
 git checkout previous-stable-commit

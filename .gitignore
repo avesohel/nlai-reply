@@ -100,3 +100,6 @@ ehthumbs.db
 
 # Claude Code settings (local only)
 .claude/
+
+# personal notes
+notes.md

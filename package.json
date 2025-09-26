@@ -1,5 +1,5 @@
 {
-  "name": "youtube-reply-service",
+  "name": "nlai-reply",
   "version": "1.0.0",
   "description": "MVP subscription-based YouTube comments reply service",
   "main": "server.js",
@@ -16,7 +16,13 @@
     "seed": "node scripts/seed.js",
     "setup": "./setup.sh"
   },
-  "keywords": ["youtube", "comments", "automation", "saas", "subscription"],
+  "keywords": [
+    "youtube",
+    "comments",
+    "automation",
+    "saas",
+    "subscription"
+  ],
   "author": "Ali Sohel <avesohel@gmail.com>",
   "license": "MIT",
   "dependencies": {

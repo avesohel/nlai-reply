@@ -5,6 +5,7 @@ A subscription-based SaaS platform that automates YouTube comment replies using 
 ## 🌟 Features
 
 ### Core Features
+
 - **Smart Reply Templates**: Create custom reply templates with variables and conditions
 - **YouTube Integration**: Direct integration with YouTube API for seamless comment management
 - **Subscription Management**: Tiered subscription plans with Stripe integration
@@ -14,6 +15,7 @@ A subscription-based SaaS platform that automates YouTube comment replies using 
 - **Secure Authentication**: JWT-based authentication with email verification
 
 ### 🤖 AI-Powered Features
+
 - **Natural AI Replies**: Generate human-like responses using OpenAI GPT models
 - **Video Context Understanding**: Extract and analyze YouTube video transcripts for contextual replies
 - **Vector-Based Content Matching**: Use Pinecone vector database for intelligent content similarity
@@ -26,6 +28,7 @@ A subscription-based SaaS platform that automates YouTube comment replies using 
 ## 🏗️ Tech Stack
 
 ### Backend
+
 - **Node.js** with Express.js framework
 - **MongoDB** with Mongoose ODM
 - **JWT** for authentication
@@ -35,6 +38,7 @@ A subscription-based SaaS platform that automates YouTube comment replies using 
 - **Cron jobs** for background tasks
 
 ### AI & Machine Learning
+
 - **OpenAI GPT-4/3.5** for natural language generation
 - **Pinecone Vector Database** for semantic search and content matching
 - **YouTube Transcript API** for video content extraction
@@ -42,6 +46,7 @@ A subscription-based SaaS platform that automates YouTube comment replies using 
 - **TikToken** for token counting and optimization
 
 ### Frontend
+
 - **React 18** with modern hooks
 - **React Router** for navigation
 - **Tailwind CSS** for styling
@@ -50,6 +55,7 @@ A subscription-based SaaS platform that automates YouTube comment replies using 
 - **Lucide React** for icons
 
 ### DevOps & Deployment
+
 - **Docker** containerization
 - **Docker Compose** for development
 - **Nginx** reverse proxy
@@ -58,6 +64,7 @@ A subscription-based SaaS platform that automates YouTube comment replies using 
 ## 📋 Prerequisites
 
 ### Required Services
+
 - Node.js 16+ and npm 8+
 - MongoDB 5+
 - YouTube Data API credentials
@@ -65,6 +72,7 @@ A subscription-based SaaS platform that automates YouTube comment replies using 
 - SMTP server for emails
 
 ### AI Services (Required for AI Features)
+
 - **OpenAI API Account** with GPT-4 or GPT-3.5 access
 - **Pinecone Vector Database** account and API key
 - Sufficient API quotas for expected usage volume
@@ -72,12 +80,14 @@ A subscription-based SaaS platform that automates YouTube comment replies using 
 ## 🚀 Quick Start
 
 ### 1. Clone the Repository
+
 ```bash
 git clone <repository-url>
-cd youtube-reply-service
+cd nlai-reply
 ```
 
 ### 2. Install Dependencies
+
 ```bash
 # Install backend dependencies
 npm install
@@ -87,6 +97,7 @@ cd client && npm install && cd ..
 ```
 
 ### 3. Environment Setup
+
 ```bash
 cp .env.example .env
 ```
@@ -99,7 +110,7 @@ PORT=5000
 NODE_ENV=development
 
 # Database
-MONGODB_URI=mongodb://localhost:27017/youtube-reply-service
+MONGODB_URI=mongodb://localhost:27017/nlai-reply
 
 # JWT
 JWT_SECRET=your-super-secret-jwt-key-here
@@ -127,12 +138,14 @@ CLIENT_URL=http://localhost:3000
 ```
 
 ### 4. Database Setup
+
 ```bash
 # Make sure MongoDB is running, then seed the database
 npm run seed
 ```
 
 ### 5. Start Development Servers
+
 ```bash
 # Terminal 1: Start backend server
 npm run server
@@ -142,12 +155,14 @@ npm run client
 ```
 
 The application will be available at:
+
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:5000
 
 ## 🎯 API Endpoints
 
 ### Authentication
+
 - `POST /api/auth/register` - User registration
 - `POST /api/auth/login` - User login
 - `GET /api/auth/me` - Get current user
@@ -156,18 +171,21 @@ The application will be available at:
 - `POST /api/auth/reset-password` - Password reset
 
 ### User Management
+
 - `GET /api/users/profile` - Get user profile
 - `PUT /api/users/profile` - Update user profile
 - `GET /api/users/usage` - Get usage statistics
 - `GET /api/users/analytics` - Get user analytics
 
 ### Subscriptions
+
 - `GET /api/subscriptions/plans` - Get available plans
 - `POST /api/subscriptions/create` - Create subscription
 - `POST /api/subscriptions/cancel` - Cancel subscription
 - `GET /api/subscriptions/status` - Get subscription status
 
 ### YouTube Integration
+
 - `GET /api/youtube/auth-url` - Get YouTube OAuth URL
 - `POST /api/youtube/connect` - Connect YouTube channel
 - `GET /api/youtube/channels` - Get connected channels
@@ -175,6 +193,7 @@ The application will be available at:
 - `POST /api/youtube/reply` - Send reply to comment
 
 ### Reply Templates
+
 - `GET /api/youtube/templates` - Get reply templates
 - `POST /api/youtube/templates` - Create reply template
 - `PUT /api/youtube/templates/:id` - Update template
@@ -183,12 +202,14 @@ The application will be available at:
 ## 📊 Subscription Plans
 
 ### Basic Plan - $9.99/month
+
 - 100 replies per month
 - 1 YouTube channel
 - Basic reply templates
 - Email support
 
 ### Pro Plan - $29.99/month
+
 - 500 replies per month
 - 5 YouTube channels
 - Advanced templates with variables
@@ -196,6 +217,7 @@ The application will be available at:
 - Analytics dashboard
 
 ### Enterprise Plan - $99.99/month
+
 - 2000 replies per month
 - 25 YouTube channels
 - Custom templates
@@ -206,8 +228,9 @@ The application will be available at:
 ## 🔧 Development
 
 ### Project Structure
+
 ```
-youtube-reply-service/
+nlai-reply
 ├── client/                 # React frontend
 │   ├── src/
 │   │   ├── components/     # Reusable components
@@ -248,24 +271,28 @@ npm run lint       # Run ESLint
 ### Database Models
 
 #### User Model
+
 - Authentication and profile information
 - YouTube channel connections
 - Usage tracking and limits
 - Subscription relationship
 
 #### Subscription Model
+
 - Subscription plans and status
 - Stripe integration
 - Feature access control
 - Billing information
 
 #### Reply Template Model
+
 - Custom reply templates
 - Conditional logic and triggers
 - Variable substitution
 - Usage analytics
 
 #### Reply Log Model
+
 - Historical reply tracking
 - Performance metrics
 - Error logging
@@ -284,6 +311,7 @@ npm run lint       # Run ESLint
 ## 🌐 Deployment
 
 ### Docker Deployment
+
 ```bash
 # Build and start all services
 docker-compose up -d
@@ -296,6 +324,7 @@ docker-compose down
 ```
 
 ### Manual Deployment
+
 1. Set up production environment variables
 2. Build the React frontend: `cd client && npm run build`
 3. Start the production server: `npm start`
@@ -304,6 +333,7 @@ docker-compose down
 6. Configure monitoring and logging
 
 ### Environment Variables for Production
+
 ```env
 NODE_ENV=production
 PORT=5000
@@ -315,6 +345,7 @@ CLIENT_URL=https://yourdomain.com
 ## 📈 Monitoring and Analytics
 
 The application includes built-in monitoring for:
+
 - User registration and engagement
 - Subscription metrics
 - API usage and performance
@@ -324,6 +355,7 @@ The application includes built-in monitoring for:
 ## 🔄 Background Jobs
 
 Automated cron jobs handle:
+
 - Usage limit notifications
 - Subscription renewal reminders
 - Database cleanup
@@ -333,12 +365,16 @@ Automated cron jobs handle:
 ## 🧪 Testing
 
 ### Test Login Credentials
+
 After seeding the database:
+
 - **Admin**: admin@replybot.com / admin123
 - **User**: test@replybot.com / user123
 
 ### API Testing
+
 Use tools like Postman or curl to test API endpoints:
+
 ```bash
 # Health check
 curl http://localhost:5000/api/health
@@ -364,6 +400,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 📞 Support
 
 For support and questions:
+
 - Email: avesohel@gmail.com
 - Author: Ali Sohel
 - Issues: Create a GitHub issue
@@ -371,18 +408,21 @@ For support and questions:
 ## 🚧 Roadmap
 
 ### Phase 1 (Current)
+
 - ✅ Basic MVP functionality
 - ✅ YouTube integration
 - ✅ Subscription management
 - ✅ Reply templates
 
 ### Phase 2 (Next)
+
 - AI-powered reply suggestions
 - Sentiment analysis
 - Advanced analytics
 - Mobile app
 
 ### Phase 3 (Future)
+
 - Multi-platform support (TikTok, Instagram)
 - Team collaboration features
 - Advanced automation rules

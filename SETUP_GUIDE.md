@@ -5,6 +5,7 @@ Follow these steps to set up and run the YouTube Reply Service locally.
 ## 📋 Prerequisites
 
 ### Required Software
+
 - **Node.js 16+** and npm 8+ ([Download](https://nodejs.org/))
 - **MongoDB 5+** ([Download](https://www.mongodb.com/try/download/community)) or MongoDB Atlas account
 - **Git** ([Download](https://git-scm.com/downloads))
@@ -13,6 +14,7 @@ Follow these steps to set up and run the YouTube Reply Service locally.
 ### Required API Keys and Services
 
 #### 1. YouTube Data API v3
+
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Create a new project or select existing
 3. Enable YouTube Data API v3
@@ -20,22 +22,26 @@ Follow these steps to set up and run the YouTube Reply Service locally.
 5. Set authorized redirect URIs: `http://localhost:5000/auth/youtube/callback`
 
 #### 2. OpenAI API (for AI features)
+
 1. Sign up at [OpenAI](https://platform.openai.com/)
 2. Get API key from [API Keys section](https://platform.openai.com/api-keys)
 3. Ensure you have credits/billing set up
 
 #### 3. Pinecone Vector Database (for AI features)
+
 1. Sign up at [Pinecone](https://www.pinecone.io/)
 2. Create a new index named `youtube-transcripts`
 3. Use dimensions: `1536` (for OpenAI embeddings)
 4. Get API key and environment name
 
 #### 4. Stripe (for payments)
+
 1. Sign up at [Stripe](https://stripe.com/)
 2. Get publishable and secret keys from dashboard
 3. Set up webhook endpoint for subscription events
 
 #### 5. SMTP Email Service
+
 - **Gmail**: Use app passwords
 - **SendGrid**: Get API key
 - **AWS SES**: Configure credentials
@@ -47,7 +53,7 @@ Follow these steps to set up and run the YouTube Reply Service locally.
 ```bash
 # Clone the repository
 git clone <your-repo-url>
-cd youtube-reply-service
+cd nlai-reply
 
 # Open in VS Code
 code .
@@ -56,6 +62,7 @@ code .
 ### Step 2: Install VS Code Extensions
 
 When you open the project, VS Code will recommend extensions. Install:
+
 - ESLint
 - Prettier
 - Tailwind CSS IntelliSense
@@ -80,9 +87,9 @@ PORT=5000
 NODE_ENV=development
 
 # Database
-MONGODB_URI=mongodb://localhost:27017/youtube-reply-service
+MONGODB_URI=mongodb://localhost:27017/nlai-reply
 # OR for MongoDB Atlas:
-# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/youtube-reply-service
+# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/nlai-reply
 
 # JWT
 JWT_SECRET=your-super-secret-jwt-key-here-min-32-chars
@@ -139,6 +146,7 @@ npm run seed
 ```
 
 This creates:
+
 - Admin user: `admin@replybot.com` / `admin123`
 - Test user: `test@replybot.com` / `user123`
 - Sample reply templates
@@ -147,11 +155,13 @@ This creates:
 ### Step 7: Start Development Servers
 
 Option 1: Start both frontend and backend together
+
 ```bash
 npm run dev
 ```
 
 Option 2: Start separately
+
 ```bash
 # Terminal 1: Backend
 npm run server
@@ -161,6 +171,7 @@ npm run client
 ```
 
 The application will be available at:
+
 - **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:5000
 - **API Health Check**: http://localhost:5000/api/health
@@ -220,12 +231,14 @@ docker-compose down
 ## 🔧 VS Code Debugging
 
 ### Debug Backend
+
 1. Press `F5` or go to Run & Debug
 2. Select "Launch Server"
 3. Set breakpoints in your code
 4. Debug requests
 
 ### Debug Tests
+
 1. Go to Run & Debug
 2. Select "Debug Tests"
 3. Set breakpoints in test files
@@ -233,6 +246,7 @@ docker-compose down
 ## 📊 Monitoring and Logs
 
 ### View Application Logs
+
 ```bash
 # Backend logs
 tail -f logs/combined.log
@@ -242,6 +256,7 @@ tail -f /usr/local/var/log/mongodb/mongo.log
 ```
 
 ### Health Checks
+
 - API: http://localhost:5000/api/health
 - Database: Check MongoDB connection in logs
 - Frontend: Check browser console for errors
@@ -249,6 +264,7 @@ tail -f /usr/local/var/log/mongodb/mongo.log
 ## 🚨 Common Issues and Solutions
 
 ### MongoDB Connection Issues
+
 ```bash
 # Check if MongoDB is running
 ps aux | grep mongod
@@ -259,6 +275,7 @@ sudo systemctl start mongod                         # Linux
 ```
 
 ### Port Already in Use
+
 ```bash
 # Kill process on port 5000
 lsof -ti:5000 | xargs kill -9
@@ -268,16 +285,19 @@ lsof -ti:3000 | xargs kill -9
 ```
 
 ### OpenAI API Errors
+
 - Check API key is valid
 - Ensure you have credits/billing set up
 - Check rate limits
 
 ### YouTube API Errors
+
 - Verify API key and OAuth credentials
 - Check quota limits in Google Cloud Console
 - Ensure YouTube Data API v3 is enabled
 
 ### Pinecone Connection Issues
+
 - Verify API key and environment
 - Ensure index exists with correct dimensions (1536)
 - Check region/environment settings
@@ -287,15 +307,18 @@ lsof -ti:3000 | xargs kill -9
 Once everything is running:
 
 1. **Set up Stripe Webhooks**:
+
    - Add webhook endpoint: `http://localhost:5000/api/webhooks/stripe`
    - Select events: `customer.subscription.*`, `invoice.*`
 
 2. **Test AI Features**:
+
    - Extract transcript from a real YouTube video
    - Generate AI replies for sample comments
    - Configure personality settings
 
 3. **Production Deployment**:
+
    - Use the deployment guide in `DEPLOYMENT.md`
    - Set up production environment variables
    - Configure domain and SSL certificates

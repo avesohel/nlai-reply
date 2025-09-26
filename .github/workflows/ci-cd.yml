@@ -2,13 +2,13 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 env:
-  NODE_VERSION: '18'
-  MONGODB_VERSION: '6.0'
+  NODE_VERSION: "18"
+  MONGODB_VERSION: "6.0"
 
 jobs:
   # Test Job
@@ -38,7 +38,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: 📥 Install Backend Dependencies
         run: npm ci
@@ -55,7 +55,7 @@ jobs:
         run: npm test
         env:
           NODE_ENV: test
-          MONGODB_URI: mongodb://root:password@localhost:27017/youtube-reply-test?authSource=admin
+          MONGODB_URI: mongodb://root:password@localhost:27017/nlai-reply-test?authSource=admin
           JWT_SECRET: test-jwt-secret-key
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
@@ -114,7 +114,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.DOCKER_USERNAME }}/youtube-reply-service
+          images: ${{ secrets.DOCKER_USERNAME }}/nlai-reply
           tags: |
             type=ref,event=branch
             type=sha,prefix={{branch}}-
@@ -150,7 +150,7 @@ jobs:
           username: ${{ secrets.STAGING_USER }}
           key: ${{ secrets.STAGING_SSH_KEY }}
           script: |
-            cd /var/www/youtube-reply-service-staging
+            cd /var/www/nlai-reply-staging
             git pull origin develop
             docker-compose -f docker-compose.staging.yml down
             docker-compose -f docker-compose.staging.yml pull
@@ -176,7 +176,7 @@ jobs:
           username: ${{ secrets.PRODUCTION_USER }}
           key: ${{ secrets.PRODUCTION_SSH_KEY }}
           script: |
-            cd /var/www/youtube-reply-service
+            cd /var/www/nlai-reply
             git pull origin main
             docker-compose -f docker-compose.prod.yml down
             docker-compose -f docker-compose.prod.yml pull
@@ -216,9 +216,9 @@ jobs:
         uses: treosh/lighthouse-ci-action@v10
         with:
           urls: |
-            https://staging.youtube-reply-service.com
-            https://staging.youtube-reply-service.com/login
-            https://staging.youtube-reply-service.com/register
+            https://staging.nlai-reply.com
+            https://staging.nlai-reply.com/login
+            https://staging.nlai-reply.com/register
           uploadArtifacts: true
           temporaryPublicStorage: true
 
@@ -246,7 +246,7 @@ jobs:
       - name: 🎭 Run Playwright Tests
         run: npx playwright test
         env:
-          BASE_URL: https://staging.youtube-reply-service.com
+          BASE_URL: https://staging.nlai-reply.com
 
       - name: 📊 Upload Test Results
         uses: actions/upload-artifact@v4
