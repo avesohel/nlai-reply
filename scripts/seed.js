@@ -81,6 +81,30 @@ const seedData = async () => {
     testUser.subscription = proSubscription._id;
     await testUser.save();
 
+    // Create subscription for admin user too (even though admin bypasses checks)
+    const adminSubscription = await Subscription.create({
+      user: adminUser._id,
+      plan: 'enterprise',
+      status: 'active',
+      currentPeriodStart: new Date(),
+      currentPeriodEnd: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
+      features: {
+        repliesPerMonth: 10000,
+        channels: 50,
+        prioritySupport: true,
+        analytics: true,
+        customTemplates: true,
+      },
+      pricing: {
+        amount: 99.99,
+        currency: 'usd',
+        interval: 'month',
+      },
+    });
+
+    adminUser.subscription = adminSubscription._id;
+    await adminUser.save();
+
     const templates = await ReplyTemplate.create([
       {
         user: testUser._id,

@@ -12,6 +12,12 @@ class VectorService {
     if (this.initialized) return;
 
     try {
+      // Check if Pinecone API key is available
+      if (!process.env.PINECONE_API_KEY || process.env.PINECONE_API_KEY === 'your-pinecone-api-key') {
+        console.warn('⚠️ Pinecone API key not configured, vector features disabled');
+        return;
+      }
+
       this.pinecone = new Pinecone({
         apiKey: process.env.PINECONE_API_KEY,
         environment: process.env.PINECONE_ENVIRONMENT,
@@ -23,14 +29,18 @@ class VectorService {
 
       console.log('✅ Pinecone vector database initialized');
     } catch (error) {
-      console.error('❌ Failed to initialize Pinecone:', error);
-      throw error;
+      console.warn('⚠️ Pinecone connection failed, vector features disabled:', error.message);
+      // Don't throw error, just disable vector features
+      this.initialized = false;
     }
   }
 
   async ensureInitialized() {
     if (!this.initialized) {
       await this.initialize();
+    }
+    if (!this.initialized) {
+      throw new Error('Vector service not available - Pinecone connection failed');
     }
   }
 
@@ -235,6 +245,15 @@ class VectorService {
 
   async getIndexStats() {
     try {
+      // Check if vector service is available before trying to connect
+      if (!process.env.PINECONE_API_KEY || process.env.PINECONE_API_KEY === 'your-pinecone-api-key') {
+        return {
+          success: false,
+          error: 'Vector database not configured',
+          stats: null
+        };
+      }
+
       await this.ensureInitialized();
 
       const stats = await this.index.describeIndexStats();
@@ -248,10 +267,10 @@ class VectorService {
         }
       };
     } catch (error) {
-      console.error('Index stats error:', error);
+      // Don't log connection errors as they're expected when Pinecone is not configured
       return {
         success: false,
-        error: error.message,
+        error: 'Vector database unavailable',
         stats: null
       };
     }

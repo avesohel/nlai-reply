@@ -344,7 +344,7 @@ class AIReplyService {
       const aiSettings = await this.getOrCreateAISettings(userId);
 
       Object.keys(settings).forEach(key => {
-        if (aiSettings.schema.paths[key] && settings[key] !== undefined) {
+        if (settings[key] !== undefined && key !== '_id' && key !== '__v') {
           aiSettings[key] = settings[key];
         }
       });

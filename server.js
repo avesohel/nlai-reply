@@ -13,6 +13,8 @@ const subscriptionRoutes = require('./routes/subscriptions');
 const youtubeRoutes = require('./routes/youtube');
 const aiRoutes = require('./routes/ai');
 const webhookRoutes = require('./routes/webhooks');
+const templateRoutes = require('./routes/templates');
+const analyticsRoutes = require('./routes/analytics');
 
 const errorHandler = require('./middleware/errorHandler');
 const { startCronJobs } = require('./services/cronService');
@@ -20,9 +22,7 @@ const { startCronJobs } = require('./services/cronService');
 const app = express();
 
 // Trust proxy for Railway, Heroku, etc.
-if (process.env.NODE_ENV === 'production') {
-  app.set('trust proxy', 1);
-}
+app.set('trust proxy', 1);
 
 // Security middleware
 app.use(helmet());
@@ -73,6 +73,8 @@ app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/youtube', youtubeRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/webhooks', webhookRoutes);
+app.use('/api/templates', templateRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
