@@ -1,13 +1,13 @@
 {
   "watch": [
-    "server.js",
+    "server.ts",
     "routes/",
     "models/",
     "middleware/",
     "services/",
     "config/"
   ],
-  "ext": "js,json",
+  "ext": "ts,js,json",
   "env": {
     "NODE_ENV": "development"
   },
@@ -15,6 +15,7 @@
     "client/",
     "node_modules/",
     "test/",
-    "logs/"
+    "logs/",
+    "dist/"
   ]
 }
