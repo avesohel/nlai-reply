@@ -358,4 +358,27 @@ router.post('/reply', auth, subscriptionRequired, async (req: Request, res: Resp
   }
 });
 
+// Get recent replies
+router.get('/replies', auth, async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+    const { limit = 5 } = req.query;
+
+    if (!user) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
+    // Use imported ReplyLog model
+
+    const replies = await ReplyLog.find({ user: user._id })
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit as string))
+      .select('videoTitle replyContent status createdAt metadata');
+
+    res.json({ replies });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 export default router;

@@ -238,4 +238,30 @@ router.get('/usage', auth, async (req: Request, res: Response) => {
   }
 });
 
+// Get AI analytics
+router.get('/analytics', auth, async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
+    const aiSettings = await AISettings.findOne({ user: user._id });
+
+    const analytics = {
+      totalRepliesGenerated: aiSettings?.usage.totalRepliesGenerated || 0,
+      currentMonthUsage: aiSettings?.usage.currentMonthUsage || 0,
+      successRate: aiSettings?.usage.successRate || 100,
+      averageResponseTime: aiSettings?.usage.averageResponseTime || 0,
+      isEnabled: aiSettings?.isEnabled || false,
+      lastUsageReset: aiSettings?.usage.lastUsageReset || new Date()
+    };
+
+    res.json({ analytics });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 export default router;

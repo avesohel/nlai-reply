@@ -71,6 +71,29 @@ router.put('/change-password', auth, validateRequest(schemas.changePassword), as
   }
 });
 
+// Get user usage information
+router.get('/usage', auth, async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
+    const usage = {
+      currentPeriodReplies: user.usage.currentPeriodReplies,
+      repliesSent: user.usage.repliesSent,
+      currentPeriodStart: user.usage.currentPeriodStart,
+      canReply: user.canReply(),
+      replyLimit: user.getReplyLimit()
+    };
+
+    res.json({ usage });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // Get user statistics
 router.get('/stats', auth, async (req: Request, res: Response) => {
   try {
