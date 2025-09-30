@@ -60,9 +60,7 @@ router.post('/connect', auth, async (req: Request, res: Response) => {
     const tokens = await getTokens(code);
     const channelInfo = await getChannelInfo(tokens.access_token!);
 
-    const existingChannelIndex = user.youtubeChannels.findIndex(
-      channel => channel.channelId === channelInfo.id
-    );
+    // Get fresh user data to prevent race conditions and duplicates
 
     const channelData = {
       channelId: channelInfo.id,
@@ -73,13 +71,25 @@ router.post('/connect', auth, async (req: Request, res: Response) => {
       lastSync: new Date()
     };
 
-    if (existingChannelIndex !== -1) {
-      user.youtubeChannels[existingChannelIndex] = channelData;
-    } else {
-      user.youtubeChannels.push(channelData);
+    // Use database-fresh user data to prevent race conditions
+    const freshUser = await User.findById(user._id);
+    if (!freshUser) {
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    await user.save();
+    const freshChannelIndex = freshUser.youtubeChannels.findIndex(
+      channel => channel.channelId === channelInfo.id
+    );
+
+    if (freshChannelIndex !== -1) {
+      // Update existing channel
+      freshUser.youtubeChannels[freshChannelIndex] = channelData;
+    } else {
+      // Add new channel only if it doesn't exist
+      freshUser.youtubeChannels.push(channelData);
+    }
+
+    await freshUser.save();
 
     res.json({
       message: 'YouTube channel connected successfully',
@@ -376,6 +386,52 @@ router.get('/replies', auth, async (req: Request, res: Response) => {
       .select('videoTitle replyContent status createdAt metadata');
 
     res.json({ replies });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Remove duplicate channels
+router.post('/cleanup-duplicates', auth, async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
+    const freshUser = await User.findById(user._id);
+    if (!freshUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Remove duplicates by keeping only the latest entry for each channelId
+    const uniqueChannels = freshUser.youtubeChannels.reduce((acc: any[], channel: any) => {
+      const existingIndex = acc.findIndex(c => c.channelId === channel.channelId);
+      if (existingIndex !== -1) {
+        // Keep the one with the latest lastSync
+        if (new Date(channel.lastSync) > new Date(acc[existingIndex].lastSync)) {
+          acc[existingIndex] = channel;
+        }
+      } else {
+        acc.push(channel);
+      }
+      return acc;
+    }, []);
+
+    freshUser.youtubeChannels = uniqueChannels;
+    await freshUser.save();
+
+    res.json({
+      message: 'Duplicate channels removed successfully',
+      channelsRemoved: freshUser.youtubeChannels.length - uniqueChannels.length,
+      channels: uniqueChannels.map(channel => ({
+        id: channel.channelId,
+        name: channel.channelName,
+        connected: channel.connected,
+        lastSync: channel.lastSync
+      }))
+    });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
