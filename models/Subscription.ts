@@ -39,6 +39,9 @@ export interface ISubscription extends Document {
   status: SubscriptionStatus;
   stripeSubscriptionId?: string;
   stripePriceId?: string;
+  pabblySubscriptionId?: string;
+  pabblyProductId?: string;
+  pabblyCustomerId?: string;
   currentPeriodStart?: Date;
   currentPeriodEnd?: Date;
   cancelAtPeriodEnd: boolean;
@@ -73,8 +76,11 @@ const subscriptionSchema = new Schema<ISubscription>({
     enum: ['active', 'canceled', 'past_due', 'unpaid', 'incomplete'],
     default: 'active'
   },
-  stripeSubscriptionId: String,
-  stripePriceId: String,
+  stripeSubscriptionId: String, // Legacy field for migration
+  stripePriceId: String, // Legacy field for migration
+  pabblySubscriptionId: String,
+  pabblyProductId: String,
+  pabblyCustomerId: String,
   currentPeriodStart: Date,
   currentPeriodEnd: Date,
   cancelAtPeriodEnd: { type: Boolean, default: false },

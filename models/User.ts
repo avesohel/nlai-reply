@@ -10,6 +10,17 @@ export interface IYouTubeChannel {
   lastSync?: Date;
 }
 
+export interface IFacebookPage {
+  pageId: string;
+  pageName: string;
+  pageAccessToken: string;
+  userAccessToken: string; // Store user token to refresh page tokens
+  connected: boolean;
+  lastSync?: Date;
+  followersCount?: number;
+  category?: string;
+}
+
 export interface IUserSettings {
   emailNotifications: boolean;
   replyDelay: number;
@@ -29,9 +40,11 @@ export interface IUser extends Document {
   role: 'user' | 'admin';
   subscription?: mongoose.Types.ObjectId;
   youtubeChannels: IYouTubeChannel[];
+  facebookPages: IFacebookPage[];
   settings: IUserSettings;
   usage: IUserUsage;
-  stripeCustomerId?: string;
+  stripeCustomerId?: string; // Legacy field for migration
+  pabblyCustomerId?: string;
   isActive: boolean;
   emailVerified: boolean;
   emailVerificationToken?: string;
@@ -82,6 +95,16 @@ const userSchema = new Schema<IUser>({
     connected: { type: Boolean, default: false },
     lastSync: Date
   }],
+  facebookPages: [{
+    pageId: String,
+    pageName: String,
+    pageAccessToken: String,
+    userAccessToken: String,
+    connected: { type: Boolean, default: false },
+    lastSync: Date,
+    followersCount: Number,
+    category: String
+  }],
   settings: {
     emailNotifications: { type: Boolean, default: true },
     replyDelay: { type: Number, default: 60, min: 30, max: 3600 },
@@ -92,7 +115,8 @@ const userSchema = new Schema<IUser>({
     currentPeriodStart: Date,
     currentPeriodReplies: { type: Number, default: 0 }
   },
-  stripeCustomerId: String,
+  stripeCustomerId: String, // Legacy field for migration
+  pabblyCustomerId: String,
   isActive: { type: Boolean, default: true },
   emailVerified: { type: Boolean, default: false },
   emailVerificationToken: String,

@@ -1,49 +1,61 @@
 import express, { Request, Response } from 'express';
-import { stripe } from '../services/stripeService';
+import { verifyWebhook, getPlanFromProductId } from '../services/pabblyService';
 import User from '../models/User';
 import Subscription from '../models/Subscription';
 
 const router = express.Router();
 
-const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+const pabblyWebhookSecret = process.env.PABBLY_WEBHOOK_SECRET;
 
-router.post('/stripe', async (req: Request, res: Response) => {
-  const sig = req.headers['stripe-signature'];
+router.post('/pabbly', async (req: Request, res: Response) => {
+  const signature = req.headers['x-pabbly-signature'] as string || req.headers['x-hub-signature-256'] as string;
 
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig as string, endpointSecret!);
+    // For Pabbly webhooks, verify signature if available
+    // Adjust this based on Pabbly's actual webhook verification method
+    if (signature && pabblyWebhookSecret) {
+      const isValid = verifyWebhook(JSON.stringify(req.body), signature, pabblyWebhookSecret);
+      if (!isValid) {
+        console.log('Pabbly webhook signature verification failed');
+        return res.status(400).send('Webhook signature verification failed');
+      }
+    }
+    event = req.body; // Pabbly sends the event data directly
   } catch (err: any) {
-    console.log(`Webhook signature verification failed.`, err.message);
+    console.log(`Pabbly webhook processing failed.`, err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   try {
     switch (event.type) {
-      case 'customer.subscription.created':
-      case 'customer.subscription.updated':
-        await handleSubscriptionUpdate(event.data.object);
+      case 'subscription.created':
+      case 'subscription.updated':
+        await handleSubscriptionUpdate(event.data);
         break;
 
-      case 'customer.subscription.deleted':
-        await handleSubscriptionCanceled(event.data.object);
+      case 'subscription.cancelled':
+      case 'subscription.deleted':
+        await handleSubscriptionCanceled(event.data);
         break;
 
+      case 'payment.succeeded':
       case 'invoice.payment_succeeded':
-        await handlePaymentSucceeded(event.data.object);
+        await handlePaymentSucceeded(event.data);
         break;
 
+      case 'payment.failed':
       case 'invoice.payment_failed':
-        await handlePaymentFailed(event.data.object);
+        await handlePaymentFailed(event.data);
         break;
 
-      case 'customer.subscription.trial_will_end':
-        await handleTrialWillEnd(event.data.object);
+      case 'subscription.trial_will_end':
+        await handleTrialWillEnd(event.data);
         break;
 
       default:
-        console.log(`Unhandled event type ${event.type}`);
+        console.log(`Unhandled Pabbly event type ${event.type}`);
     }
 
     res.json({ received: true });
@@ -53,57 +65,48 @@ router.post('/stripe', async (req: Request, res: Response) => {
   }
 });
 
-async function handleSubscriptionUpdate(stripeSubscription: any) {
-  const user = await User.findOne({ stripeCustomerId: stripeSubscription.customer });
+async function handleSubscriptionUpdate(pabblySubscription: any) {
+  const user = await User.findOne({ pabblyCustomerId: pabblySubscription.customer_id });
 
   if (!user) {
-    console.error('User not found for customer:', stripeSubscription.customer);
+    console.error('User not found for customer:', pabblySubscription.customer_id);
     return;
   }
 
-  const priceId = stripeSubscription.items.data[0].price.id;
-  const planMapping: { [key: string]: string } = {
-    [process.env.STRIPE_BASIC_MONTHLY_PRICE_ID!]: 'basic',
-    [process.env.STRIPE_BASIC_YEARLY_PRICE_ID!]: 'basic',
-    [process.env.STRIPE_PRO_MONTHLY_PRICE_ID!]: 'pro',
-    [process.env.STRIPE_PRO_YEARLY_PRICE_ID!]: 'pro',
-    [process.env.STRIPE_ENTERPRISE_MONTHLY_PRICE_ID!]: 'enterprise',
-    [process.env.STRIPE_ENTERPRISE_YEARLY_PRICE_ID!]: 'enterprise'
-  };
-
-  const plan = planMapping[priceId];
-  if (!plan) {
-    console.error('Unknown price ID:', priceId);
+  const planInfo = getPlanFromProductId(pabblySubscription.product_id);
+  if (!planInfo) {
+    console.error('Unknown product ID:', pabblySubscription.product_id);
     return;
   }
 
   const plans = Subscription.getPlans() as any;
 
-  let subscription = await Subscription.findOne({ stripeSubscriptionId: stripeSubscription.id });
+  let subscription = await Subscription.findOne({ pabblySubscriptionId: pabblySubscription.id });
 
   if (subscription) {
-    subscription.status = stripeSubscription.status;
-    subscription.currentPeriodStart = new Date(stripeSubscription.current_period_start * 1000);
-    subscription.currentPeriodEnd = new Date(stripeSubscription.current_period_end * 1000);
-    subscription.cancelAtPeriodEnd = stripeSubscription.cancel_at_period_end;
+    subscription.status = pabblySubscription.status;
+    subscription.currentPeriodStart = new Date(pabblySubscription.current_period_start);
+    subscription.currentPeriodEnd = new Date(pabblySubscription.current_period_end);
+    subscription.cancelAtPeriodEnd = pabblySubscription.cancel_at_period_end;
 
-    if (stripeSubscription.canceled_at) {
-      subscription.canceledAt = new Date(stripeSubscription.canceled_at * 1000);
+    if (pabblySubscription.canceled_at) {
+      subscription.canceledAt = new Date(pabblySubscription.canceled_at);
     }
   } else {
     subscription = new Subscription({
       user: user._id,
-      plan,
-      status: stripeSubscription.status,
-      stripeSubscriptionId: stripeSubscription.id,
-      stripePriceId: priceId,
-      currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
-      features: plans[plan].features,
+      plan: planInfo.plan,
+      status: pabblySubscription.status,
+      pabblySubscriptionId: pabblySubscription.id,
+      pabblyProductId: pabblySubscription.product_id,
+      pabblyCustomerId: pabblySubscription.customer_id,
+      currentPeriodStart: new Date(pabblySubscription.current_period_start),
+      currentPeriodEnd: new Date(pabblySubscription.current_period_end),
+      features: plans[planInfo.plan].features,
       pricing: {
-        amount: stripeSubscription.items.data[0].price.unit_amount / 100,
-        currency: stripeSubscription.items.data[0].price.currency,
-        interval: stripeSubscription.items.data[0].price.recurring.interval
+        amount: plans[planInfo.plan].price[planInfo.interval === 'yearly' ? 'yearly' : 'monthly'],
+        currency: 'usd',
+        interval: planInfo.interval === 'yearly' ? 'year' : 'month'
       }
     });
 
@@ -113,11 +116,11 @@ async function handleSubscriptionUpdate(stripeSubscription: any) {
   await subscription.save();
   await user.save();
 
-  console.log(`Subscription ${stripeSubscription.status} for user ${user.email}`);
+  console.log(`Subscription ${pabblySubscription.status} for user ${user.email}`);
 }
 
-async function handleSubscriptionCanceled(stripeSubscription: any) {
-  const subscription = await Subscription.findOne({ stripeSubscriptionId: stripeSubscription.id });
+async function handleSubscriptionCanceled(pabblySubscription: any) {
+  const subscription = await Subscription.findOne({ pabblySubscriptionId: pabblySubscription.id });
 
   if (subscription) {
     subscription.status = 'canceled';
@@ -131,15 +134,18 @@ async function handleSubscriptionCanceled(stripeSubscription: any) {
   }
 }
 
-async function handlePaymentSucceeded(invoice: any) {
-  const user = await User.findOne({ stripeCustomerId: invoice.customer });
+async function handlePaymentSucceeded(paymentData: any) {
+  // For Pabbly, extract customer_id from payment data
+  const customerId = paymentData.customer_id || paymentData.customer;
+  const user = await User.findOne({ pabblyCustomerId: customerId });
 
   if (!user) {
     console.error('User not found for payment succeeded webhook');
     return;
   }
 
-  if (invoice.billing_reason === 'subscription_cycle') {
+  // Check if this is a recurring payment (subscription renewal)
+  if (paymentData.billing_reason === 'subscription_cycle' || paymentData.subscription_id) {
     user.usage.currentPeriodStart = new Date();
     user.usage.currentPeriodReplies = 0;
     await user.save();
@@ -148,8 +154,9 @@ async function handlePaymentSucceeded(invoice: any) {
   }
 }
 
-async function handlePaymentFailed(invoice: any) {
-  const user = await User.findOne({ stripeCustomerId: invoice.customer });
+async function handlePaymentFailed(paymentData: any) {
+  const customerId = paymentData.customer_id || paymentData.customer;
+  const user = await User.findOne({ pabblyCustomerId: customerId });
 
   if (!user) {
     console.error('User not found for payment failed webhook');
@@ -165,8 +172,8 @@ async function handlePaymentFailed(invoice: any) {
   console.log(`Payment failed for user ${user.email}`);
 }
 
-async function handleTrialWillEnd(stripeSubscription: any) {
-  const user = await User.findOne({ stripeCustomerId: stripeSubscription.customer });
+async function handleTrialWillEnd(pabblySubscription: any) {
+  const user = await User.findOne({ pabblyCustomerId: pabblySubscription.customer_id });
 
   if (!user) {
     console.error('User not found for trial ending webhook');

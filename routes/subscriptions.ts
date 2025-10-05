@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import { auth } from '../middleware/auth';
 import User from '../models/User';
 import Subscription from '../models/Subscription';
-import { createStripeCustomer, createSubscription, cancelSubscription, getSubscription, stripe } from '../services/stripeService';
+import { createPabblyCustomer, createSubscription as createPabblySubscription, cancelSubscription as cancelPabblySubscription, getSubscription as getPabblySubscription, reactivateSubscription as reactivatePabblySubscription, getCustomerInvoices } from '../services/pabblyService';
 
 const router = express.Router();
 
@@ -32,31 +32,32 @@ router.post('/create', auth, async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'User already has a subscription' });
     }
 
-    let stripeCustomerId = user.stripeCustomerId;
+    let pabblyCustomerId = user.pabblyCustomerId;
 
-    if (!stripeCustomerId) {
-      const customer = await createStripeCustomer(user.email, user.name);
-      stripeCustomerId = customer.id;
-      user.stripeCustomerId = stripeCustomerId;
+    if (!pabblyCustomerId) {
+      const customer = await createPabblyCustomer(user.email, user.name);
+      pabblyCustomerId = customer.id;
+      user.pabblyCustomerId = pabblyCustomerId;
       await user.save();
     }
 
     const plans = Subscription.getPlans();
     const selectedPlan = (plans as any)[plan];
 
-    const stripeSubscription = await createSubscription(
-      stripeCustomerId,
+    const pabblySubscription = await createPabblySubscription(
+      pabblyCustomerId,
       plan,
-      interval
+      interval as 'monthly' | 'yearly'
     );
 
     const subscription = new Subscription({
       user: user._id,
       plan,
-      stripeSubscriptionId: stripeSubscription.id,
-      stripePriceId: stripeSubscription.items.data[0].price.id,
-      currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
+      pabblySubscriptionId: pabblySubscription.id,
+      pabblyProductId: pabblySubscription.product_id || '',
+      pabblyCustomerId: pabblyCustomerId,
+      currentPeriodStart: new Date(pabblySubscription.current_period_start),
+      currentPeriodEnd: new Date(pabblySubscription.current_period_end),
       features: selectedPlan.features,
       pricing: {
         amount: interval === 'year' ? selectedPlan.price.yearly : selectedPlan.price.monthly,
@@ -74,7 +75,7 @@ router.post('/create', auth, async (req: Request, res: Response) => {
     res.json({
       message: 'Subscription created successfully',
       subscription,
-      clientSecret: (stripeSubscription.latest_invoice as any)?.payment_intent?.client_secret
+      paymentUrl: pabblySubscription.payment_url || null
     });
   } catch (error: any) {
     console.error('Subscription creation error:', error);
@@ -100,7 +101,7 @@ router.post('/cancel', auth, async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Subscription not found' });
     }
 
-    await cancelSubscription(subscription.stripeSubscriptionId);
+    await cancelPabblySubscription(subscription.pabblySubscriptionId!);
 
     subscription.cancelAtPeriodEnd = true;
     subscription.canceledAt = new Date();
@@ -133,12 +134,10 @@ router.post('/reactivate', auth, async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Subscription is not scheduled for cancellation' });
     }
 
-    const stripeStatus = await getSubscription(subscription.stripeSubscriptionId);
+    const pabblyStatus = await getPabblySubscription(subscription.pabblySubscriptionId!);
 
-    if (stripeStatus.cancel_at_period_end) {
-      await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
-        cancel_at_period_end: false
-      });
+    if (pabblyStatus.cancel_at_period_end) {
+      await reactivatePabblySubscription(subscription.pabblySubscriptionId!);
     }
 
     subscription.cancelAtPeriodEnd = false;
@@ -211,24 +210,21 @@ router.get('/invoices', auth, async (req: Request, res: Response) => {
       return res.status(401).json({ message: 'User not authenticated' });
     }
 
-    if (!user.stripeCustomerId) {
+    if (!user.pabblyCustomerId) {
       return res.json({ invoices: [] });
     }
 
-    const invoices = await stripe.invoices.list({
-      customer: user.stripeCustomerId,
-      limit: 10
-    });
+    const invoices = await getCustomerInvoices(user.pabblyCustomerId, 10);
 
     res.json({
-      invoices: invoices.data.map((invoice: any) => ({
+      invoices: invoices.map((invoice: any) => ({
         id: invoice.id,
-        amount: invoice.amount_paid / 100,
+        amount: invoice.amount,
         currency: invoice.currency,
         status: invoice.status,
-        created: new Date(invoice.created * 1000),
-        hostedInvoiceUrl: invoice.hosted_invoice_url,
-        invoicePdf: invoice.invoice_pdf
+        created: new Date(invoice.created_at),
+        hostedInvoiceUrl: invoice.invoice_url || null,
+        invoicePdf: invoice.pdf_url || null
       }))
     });
   } catch (error: any) {

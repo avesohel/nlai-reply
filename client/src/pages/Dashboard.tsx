@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Youtube, MessageSquare, BarChart3, Plus, ExternalLink, Trash2 } from 'lucide-react';
+import { Youtube, MessageSquare, BarChart3, Plus, ExternalLink, Trash2, Facebook } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
@@ -10,9 +10,10 @@ const Dashboard = () => {
   const [stats, setStats] = useState({
     totalReplies: 0,
     remainingReplies: 0,
-    connectedChannels: 0
+    connectedChannels: 0,
   });
   const [channels, setChannels] = useState([]);
+  const [facebookPages, setFacebookPages] = useState([]);
   const [recentReplies, setRecentReplies] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -22,19 +23,21 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const [usageRes, channelsRes, repliesRes] = await Promise.all([
+      const [usageRes, channelsRes, facebookRes, repliesRes] = await Promise.all([
         api.get('/users/usage'),
         api.get('/youtube/channels'),
-        api.get('/youtube/replies?limit=5')
+        api.get('/facebook/pages').catch(() => ({ data: [] })), // Facebook may not be configured yet
+        api.get('/youtube/replies?limit=5'),
       ]);
 
       setStats({
         totalReplies: usageRes.data.usage.repliesSent || 0,
         remainingReplies: usageRes.data.remainingReplies || 0,
-        connectedChannels: channelsRes.data.channels.length || 0
+        connectedChannels: channelsRes.data.channels.length || 0,
       });
 
       setChannels(channelsRes.data.channels || []);
+      setFacebookPages(facebookRes.data?.pages || []);
       setRecentReplies(repliesRes.data.replies || []);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -52,26 +55,58 @@ const Dashboard = () => {
     }
   };
 
-  const deleteChannel = async (channelId) => {
+  const connectFacebook = async () => {
+    try {
+      const response = await api.get('/facebook/auth-url');
+      window.location.href = response.data.authUrl;
+    } catch (error) {
+      toast.error('Failed to connect Facebook. Make sure your Meta API credentials are configured.');
+    }
+  };
+
+  const deleteChannel = async channelId => {
     if (!window.confirm('Are you sure you want to disconnect this YouTube channel?')) {
       return;
     }
 
     try {
+      console.log('Deleting channel:', channelId);
       await api.delete(`/youtube/channels/${channelId}`);
       toast.success('YouTube channel disconnected successfully');
       // Refresh the data
-      fetchDashboardData();
+      await fetchDashboardData();
     } catch (error) {
-      toast.error('Failed to disconnect YouTube channel');
+      console.error('Error deleting channel:', error);
+      toast.error(
+        'Failed to disconnect YouTube channel: ' + (error.response?.data?.message || error.message)
+      );
     }
   };
 
-  const getStatusBadge = (status) => {
+  const deleteFacebookPage = async pageId => {
+    if (!window.confirm('Are you sure you want to disconnect this Facebook Page?')) {
+      return;
+    }
+
+    try {
+      console.log('Deleting Facebook page:', pageId);
+      await api.delete(`/facebook/pages/${pageId}`);
+      toast.success('Facebook Page disconnected successfully');
+      // Refresh the data
+      await fetchDashboardData();
+    } catch (error) {
+      console.error('Error deleting Facebook page:', error);
+      toast.error(
+        'Failed to disconnect Facebook Page: ' + (error.response?.data?.message || error.message)
+      );
+    }
+  };
+
+  const getStatusBadge = status => {
     const badges = {
       sent: 'badge-success',
       failed: 'badge-danger',
-      pending: 'badge-warning'
+      pending: 'badge-warning',
     };
     return badges[status] || 'badge-primary';
   };
@@ -132,7 +167,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Youtube Channels */}
           <div className="card">
             <div className="flex items-center justify-between mb-6">
@@ -150,37 +185,135 @@ const Dashboard = () => {
               <div className="text-center py-8">
                 <Youtube className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No channels connected</h3>
-                <p className="text-gray-500 mb-4">Connect your Youtube channel to start automating replies</p>
-                <button
-                  onClick={connectYoutube}
-                  className="btn btn-primary"
-                >
+                <p className="text-gray-500 mb-4">
+                  Connect your Youtube channel to start automating replies
+                </p>
+                <button onClick={connectYoutube} className="btn btn-primary">
                   Connect Your First Channel
                 </button>
               </div>
             ) : (
               <div className="space-y-4">
                 {channels.map((channel, index) => (
-                  <div key={channel.channelId || index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div
+                    key={channel.id || index}
+                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                  >
                     <div className="flex items-center space-x-3">
                       <div className="p-2 bg-red-100 rounded-full">
                         <Youtube className="h-5 w-5 text-red-600" />
                       </div>
                       <div>
-                        <h3 className="font-medium text-gray-900">{channel.channelName}</h3>
+                        <h3 className="font-medium text-gray-900">
+                          {channel.name}
+                          {/* <span className="text-sm text-gray-500 ml-2">({channel.id})</span> */}
+                        </h3>
                         <p className="text-sm text-gray-500">
-                          Last sync: {new Date(channel.lastSync).toLocaleDateString()}
+                          Last sync:{' '}
+                          {channel.lastSyncFormatted ||
+                            new Date(channel.lastSync).toLocaleDateString()}
                         </p>
+                        {channel.youtubeUrl && (
+                          <a
+                            href={channel.youtubeUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-blue-600 hover:text-blue-800 inline-flex items-center"
+                          >
+                            View on YouTube <ExternalLink className="h-3 w-3 ml-1" />
+                          </a>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <span className={`badge ${channel.connected ? 'badge-success' : 'badge-danger'}`}>
+                      <span
+                        className={`badge ${channel.connected ? 'badge-success' : 'badge-danger'}`}
+                      >
                         {channel.connected ? 'Connected' : 'Disconnected'}
                       </span>
                       <button
-                        onClick={() => deleteChannel(channel.channelId)}
+                        onClick={() => deleteChannel(channel.id)}
                         className="p-2 text-red-600 hover:bg-red-100 rounded-full transition-colors"
                         title="Disconnect channel"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Facebook Pages */}
+          <div className="card">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">Facebook Pages</h2>
+              <button
+                onClick={connectFacebook}
+                className="btn btn-primary flex items-center space-x-2"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Connect Page</span>
+              </button>
+            </div>
+
+            {facebookPages.length === 0 ? (
+              <div className="text-center py-8">
+                <Facebook className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No pages connected</h3>
+                <p className="text-gray-500 mb-4">
+                  Connect your Facebook Page to start automating replies
+                </p>
+                <button onClick={connectFacebook} className="btn btn-primary">
+                  Connect Your First Page
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {facebookPages.map((page, index) => (
+                  <div
+                    key={page.id || index}
+                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-blue-100 rounded-full">
+                        <Facebook className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-gray-900">
+                          {page.name}
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          Followers: {page.followersCount?.toLocaleString() || 'Unknown'}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          Last sync:{' '}
+                          {page.lastSyncFormatted ||
+                            new Date(page.lastSync).toLocaleDateString()}
+                        </p>
+                        {page.facebookUrl && (
+                          <a
+                            href={page.facebookUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-blue-600 hover:text-blue-800 inline-flex items-center"
+                          >
+                            View on Facebook <ExternalLink className="h-3 w-3 ml-1" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <span
+                        className={`badge ${page.connected ? 'badge-success' : 'badge-danger'}`}
+                      >
+                        {page.connected ? 'Connected' : 'Disconnected'}
+                      </span>
+                      <button
+                        onClick={() => deleteFacebookPage(page.id)}
+                        className="p-2 text-red-600 hover:bg-red-100 rounded-full transition-colors"
+                        title="Disconnect page"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -195,7 +328,10 @@ const Dashboard = () => {
           <div className="card">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-900">Recent Replies</h2>
-              <Link to="/analytics" className="text-blue-600 hover:text-blue-700 flex items-center space-x-1">
+              <Link
+                to="/analytics"
+                className="text-blue-600 hover:text-blue-700 flex items-center space-x-1"
+              >
                 <span>View all</span>
                 <ExternalLink className="h-4 w-4" />
               </Link>
@@ -205,7 +341,9 @@ const Dashboard = () => {
               <div className="text-center py-8">
                 <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No replies yet</h3>
-                <p className="text-gray-500 mb-4">Start creating reply templates to automate responses</p>
+                <p className="text-gray-500 mb-4">
+                  Start creating reply templates to automate responses
+                </p>
                 <Link to="/templates" className="btn btn-primary">
                   Create Template
                 </Link>
@@ -222,9 +360,7 @@ const Dashboard = () => {
                         {reply.status}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600 line-clamp-2 mb-2">
-                      {reply.replyContent}
-                    </p>
+                    <p className="text-sm text-gray-600 line-clamp-2 mb-2">{reply.replyContent}</p>
                     <p className="text-xs text-gray-500">
                       {new Date(reply.createdAt).toLocaleDateString()} • {reply.channelName}
                     </p>
@@ -245,7 +381,9 @@ const Dashboard = () => {
             >
               <MessageSquare className="h-8 w-8 text-blue-600 mb-3" />
               <h3 className="font-medium text-gray-900 mb-2">Create Reply Template</h3>
-              <p className="text-sm text-gray-600">Set up automated responses for common comments</p>
+              <p className="text-sm text-gray-600">
+                Set up automated responses for common comments
+              </p>
             </Link>
 
             <Link

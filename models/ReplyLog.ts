@@ -22,6 +22,7 @@ export interface IReplyLog extends Document {
   videoTitle?: string;
   channelId?: string;
   channelName?: string;
+  platform: 'youtube' | 'facebook';
   originalComment: IOriginalComment;
   replyContent: string;
   template?: mongoose.Types.ObjectId;
@@ -29,6 +30,7 @@ export interface IReplyLog extends Document {
   sentAt?: Date;
   error?: string;
   youtubeReplyId?: string;
+  facebookReplyId?: string;
   metadata: IReplyMetadata;
   createdAt: Date;
   updatedAt: Date;
@@ -47,6 +49,11 @@ const replyLogSchema = new Schema<IReplyLog>({
   videoTitle: String,
   channelId: String,
   channelName: String,
+  platform: {
+    type: String,
+    enum: ['youtube', 'facebook'],
+    default: 'youtube'
+  },
   originalComment: {
     id: String,
     text: String,
@@ -69,6 +76,7 @@ const replyLogSchema = new Schema<IReplyLog>({
   sentAt: Date,
   error: String,
   youtubeReplyId: String,
+  facebookReplyId: String,
   metadata: {
     processingTime: Number,
     retryCount: { type: Number, default: 0 },

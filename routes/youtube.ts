@@ -126,7 +126,11 @@ router.get('/channels', auth, async (req: Request, res: Response) => {
         id: channel.channelId,
         name: channel.channelName,
         connected: channel.connected,
-        lastSync: channel.lastSync
+        lastSync: channel.lastSync,
+        // Format last sync for better display
+        lastSyncFormatted: channel.lastSync ? new Date(channel.lastSync).toLocaleString() : null,
+        // YouTube standard channel URL
+        youtubeUrl: `https://www.youtube.com/channel/${channel.channelId}`
       }))
     });
   } catch (error: any) {
@@ -313,6 +317,7 @@ router.post('/reply', auth, subscriptionRequired, async (req: Request, res: Resp
         publishedAt: new Date()
       },
       replyContent: replyText,
+      platform: 'youtube',
       template: templateId,
       status: 'sent',
       sentAt: new Date(),
@@ -347,6 +352,7 @@ router.post('/reply', auth, subscriptionRequired, async (req: Request, res: Resp
             publishedAt: new Date()
           },
           replyContent: req.body.replyText,
+          platform: 'youtube',
           template: req.body.templateId,
           status: 'failed',
           error: error.message,
